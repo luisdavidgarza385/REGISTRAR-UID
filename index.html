@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selling Panel - Admin & Reseller Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <!-- LASER WAVES BACKGROUND -->
+    <div class="laser-bg">
+        <svg class="laser-waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 600" preserveAspectRatio="none">
+            <path class="laser-line wave-1" d="M -100 200 C 300 450, 700 100, 1600 350" />
+            <path class="laser-line wave-2" d="M -100 280 C 400 500, 800 150, 1600 420" />
+            <path class="laser-line wave-3" d="M -100 360 C 500 550, 900 200, 1600 480" />
+            <path class="laser-line wave-4" d="M -100 440 C 600 600, 1000 250, 1600 550" />
+        </svg>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo-box">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#9333ea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h1 class="login-title">Selling Panel</h1>
+            <p class="login-subtitle">Admin & Reseller Dashboard</p>
+
+            <form id="loginForm" class="login-form">
+                <div class="input-group">
+                    <label>USERNAME</label>
+                    <div class="input-field-wrapper">
+                        <span class="field-icon">👤</span>
+                        <input type="text" id="loginUsername" placeholder="Enter your username" value="admin" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>PASSWORD</label>
+                    <div class="input-field-wrapper">
+                        <span class="field-icon">🔒</span>
+                        <input type="password" id="loginPassword" placeholder="••••••••" value="admin123" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-purple-glow">
+                    <span>➡️ Sign In</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN (HIDDEN BY DEFAULT UNTIL LOGIN OR DEMO) -->
+    <div id="appLayout" class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="brand-title">Selling<span class="brand-highlight">Panel</span></span>
+            </div>
+
+            <nav class="sidebar-menu">
+                <button class="nav-item" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </button>
+                <button class="nav-item active" data-view="uids">
+                    <span class="nav-icon">🔑</span>
+                    <span class="nav-label">UIDs</span>
+                </button>
+                <button class="nav-item" data-view="resellers">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Resellers</span>
+                </button>
+                <button class="nav-item" data-view="config">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Configuración</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="footer-item" id="btnToggleTheme">
+                    <span class="footer-icon">☀️</span>
+                    <span>Modo Claro</span>
+                </button>
+                <button class="footer-item danger" id="btnLogout">
+                    <span class="footer-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTAINER -->
+        <div class="main-wrapper">
+            <!-- TOP BAR -->
+            <header class="topbar">
+                <div class="topbar-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="globalSearch" placeholder="Buscar UIDs, usuarios...">
+                </div>
+
+                <div class="topbar-profile">
+                    <button class="btn-notification" title="Notificaciones">🔔</button>
+                    <div class="user-badge">
+                        <div class="user-meta">
+                            <span class="user-name" id="userDisplayName">admin</span>
+                            <span class="user-role">ADMINISTRADOR</span>
+                        </div>
+                        <div class="user-avatar">A</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW 1: UIDS MANAGEMENT (DEFAULT) -->
+            <main id="viewUids" class="content-view active">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs</h1>
+                        <p class="view-subtitle">Administra las licencias y UIDs registradas en el sistema</p>
+                    </div>
+                    <button class="btn-action-primary" id="btnOpenAddModal">
+                        <span>+ Agregar Nuevo UID</span>
+                    </button>
+                </div>
+
+                <!-- STATS COUNTERS -->
+                <div class="stats-row">
+                    <div class="mini-stat">
+                        <span class="stat-count cyan" id="cntTotal">0</span>
+                        <span class="stat-name">Total UIDs</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="stat-count green" id="cntActive">0</span>
+                        <span class="stat-name">Activos</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="stat-count yellow" id="cntWarning">0</span>
+                        <span class="stat-name">Por Vencer</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="stat-count red" id="cntExpired">0</span>
+                        <span class="stat-name">Expirados</span>
+                    </div>
+                </div>
+
+                <!-- CONTENT CARD / TABLE -->
+                <div class="panel-card">
+                    <div class="panel-card-header">
+                        <span class="card-icon">📋</span>
+                        <span class="card-title">Lista de UIDs Registrados (<span id="uidCountLabel">0</span>)</span>
+                    </div>
+
+                    <div class="panel-card-body">
+                        <div class="table-responsive">
+                            <table class="selling-table">
+                                <thead>
+                                    <tr>
+                                        <th>UID Jugador</th>
+                                        <th>Cliente / Reseller</th>
+                                        <th>Días</th>
+                                        <th>Fecha Registro</th>
+                                        <th>Expiración</th>
+                                        <th>Estado</th>
+                                        <th class="text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="uidsTableBody">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+
+                            <div id="uidsEmptyState" class="empty-box">
+                                <div class="empty-icon-box">📥</div>
+                                <p class="empty-text">No hay UIDs registrados en el sistema</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 2: DASHBOARD SUMMARY -->
+            <main id="viewDashboard" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">📊 Resumen General</h1>
+                        <p class="view-subtitle">Estadísticas globales de ventas y licencias del panel</p>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-card-header"><span class="card-icon">📈</span> Rendimiento</div>
+                    <div class="panel-card-body" style="padding: 30px; text-align: center; color: #a1a1aa;">
+                        <p>Panel en funcionamiento óptimo. Todas las licencias sincronizadas correctamente.</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 3: RESELLERS -->
+            <main id="viewResellers" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">👥 Gestión de Resellers</h1>
+                        <p class="view-subtitle">Administra los revendedores con acceso al panel</p>
+                    </div>
+                    <button class="btn-action-primary">+ Agregar Reseller</button>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-card-header"><span class="card-icon">👑</span> Revendedores Activos</div>
+                    <div class="panel-card-body" style="padding: 30px; text-align: center; color: #a1a1aa;">
+                        <p>1 Reseller Administrador Activo (admin)</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 4: CONFIGURATION -->
+            <main id="viewConfig" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">⚙️ Configuración del Servidor API</h1>
+                        <p class="view-subtitle">Configura los parámetros de la API backend vypermods.com</p>
+                    </div>
+                </div>
+                <div class="panel-card" style="max-width: 600px;">
+                    <div class="panel-card-header"><span class="card-icon">🔌</span> Conexión API</div>
+                    <div class="panel-card-body" style="padding: 24px;">
+                        <div class="input-group" style="margin-bottom: 16px;">
+                            <label>URL ENDPOINT API</label>
+                            <input type="text" id="configApiUrl" value="https://apix.vypermods.com/bypass/vp" class="styled-input">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 20px;">
+                            <label>API KEY (X-API-KEY)</label>
+                            <input type="text" id="configApiKey" value="VPAPI-88HD63H6RSW78HQSHPHXM3P432HULZ" class="styled-input">
+                        </div>
+                        <div id="apiTestStatus" style="font-size: 13px; margin-bottom: 16px;"></div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="btnTestApiConnection" class="btn-secondary">Probar Conexión</button>
+                            <button id="btnSaveConfig" class="btn-action-primary" style="flex:1;">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR NUEVO UID -->
+    <div id="addModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>⚡ Agregar Nuevo UID</h2>
+                <button class="modal-close" id="btnCloseAddModal">&times;</button>
+            </div>
+            <form id="modalAddForm">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>UID DEL JUGADOR</label>
+                        <input type="text" id="addUidInput" placeholder="Ej: 57546546" autocomplete="off" required maxlength="15" pattern="[0-9]+" class="styled-input">
+                    </div>
+
+                    <div class="input-group">
+                        <label>DÍAS DE LICENCIA</label>
+                        <input type="number" id="addDaysInput" placeholder="30" min="1" max="3650" required value="30" class="styled-input">
+                        <div class="quick-days">
+                            <button type="button" class="q-day-btn" data-days="1">1D</button>
+                            <button type="button" class="q-day-btn" data-days="7">7D</button>
+                            <button type="button" class="q-day-btn active" data-days="30">30D</button>
+                            <button type="button" class="q-day-btn" data-days="365">365D</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>RESELLER / CLIENTE (OPCIONAL)</label>
+                        <input type="text" id="addNoteInput" placeholder="Ej: Cliente VIP - Juan" autocomplete="off" class="styled-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelAddModal">Cancelar</button>
+                    <button type="submit" class="btn-action-primary">+ Registrar Licencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
