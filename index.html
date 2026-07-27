@@ -3,71 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selling Panel - Admin & Reseller Dashboard</title>
+    <title>Registrar Bypass - UID Global</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dark-theme">
-    <!-- LASER WAVES BACKGROUND -->
-    <div class="laser-bg">
-        <svg class="laser-waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 600" preserveAspectRatio="none">
-            <path class="laser-line wave-1" d="M -100 200 C 300 450, 700 100, 1600 350" />
-            <path class="laser-line wave-2" d="M -100 280 C 400 500, 800 150, 1600 420" />
-            <path class="laser-line wave-3" d="M -100 360 C 500 550, 900 200, 1600 480" />
-            <path class="laser-line wave-4" d="M -100 440 C 600 600, 1000 250, 1600 550" />
-        </svg>
-    </div>
+    <!-- ANIMATED NEON CANVAS BACKGROUND -->
+    <canvas id="bgCanvas" class="bg-canvas"></canvas>
 
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="login-logo-box">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="#9333ea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h1 class="login-title">Selling Panel</h1>
-            <p class="login-subtitle">Admin & Reseller Dashboard</p>
+            <h1 class="login-title">Registrar Bypass</h1>
+            <p class="login-subtitle">UID Global Admin & Reseller Panel</p>
 
             <form id="loginForm" class="login-form">
                 <div class="input-group">
-                    <label>USERNAME</label>
+                    <label>USUARIO</label>
                     <div class="input-field-wrapper">
                         <span class="field-icon">👤</span>
-                        <input type="text" id="loginUsername" placeholder="Enter your username" value="admin" required>
+                        <input type="text" id="loginUsername" placeholder="Ingresa tu usuario" value="admin" required autocomplete="username">
                     </div>
                 </div>
 
                 <div class="input-group">
-                    <label>PASSWORD</label>
+                    <label>CONTRASEÑA</label>
                     <div class="input-field-wrapper">
                         <span class="field-icon">🔒</span>
-                        <input type="password" id="loginPassword" placeholder="••••••••" value="admin123" required>
+                        <input type="password" id="loginPassword" placeholder="••••••••" value="admin123" required autocomplete="current-password">
                     </div>
                 </div>
 
+                <div id="loginErrorMsg" class="login-error hidden"></div>
+
                 <button type="submit" class="btn-purple-glow">
-                    <span>➡️ Sign In</span>
+                    <span>➡️ Iniciar Sesión</span>
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- MAIN APP SCREEN (HIDDEN BY DEFAULT UNTIL LOGIN OR DEMO) -->
-    <div id="appLayout" class="app-layout">
+    <!-- MAIN APP SCREEN -->
+    <div id="appLayout" class="app-layout hidden">
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span class="brand-title">Selling<span class="brand-highlight">Panel</span></span>
+                <div class="brand-text-box">
+                    <span class="brand-title">Registrar<span class="brand-highlight">Bypass</span></span>
+                    <span class="brand-badge">UID GLOBAL</span>
+                </div>
             </div>
 
             <nav class="sidebar-menu">
@@ -77,23 +75,26 @@
                 </button>
                 <button class="nav-item active" data-view="uids">
                     <span class="nav-icon">🔑</span>
-                    <span class="nav-label">UIDs</span>
+                    <span class="nav-label">Gestión de UIDs</span>
                 </button>
-                <button class="nav-item" data-view="resellers">
+                <button class="nav-item" data-view="resellers" id="navResellersBtn">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Resellers</span>
                 </button>
                 <button class="nav-item" data-view="config">
                     <span class="nav-icon">⚙️</span>
-                    <span class="nav-label">Configuración</span>
+                    <span class="nav-label">Configuración API</span>
                 </button>
             </nav>
 
             <div class="sidebar-footer">
-                <button class="footer-item" id="btnToggleTheme">
-                    <span class="footer-icon">☀️</span>
-                    <span>Modo Claro</span>
-                </button>
+                <div class="user-info-footer">
+                    <span class="u-icon">👤</span>
+                    <div class="u-details">
+                        <span id="footerUserLabel" class="u-name">admin</span>
+                        <span id="footerRoleLabel" class="u-role">ADMINISTRADOR</span>
+                    </div>
+                </div>
                 <button class="footer-item danger" id="btnLogout">
                     <span class="footer-icon">🚪</span>
                     <span>Cerrar Sesión</span>
@@ -107,26 +108,25 @@
             <header class="topbar">
                 <div class="topbar-search">
                     <span class="search-icon">🔍</span>
-                    <input type="text" id="globalSearch" placeholder="Buscar UIDs, usuarios...">
+                    <input type="text" id="globalSearch" placeholder="Buscar UIDs, resellers, notas...">
                 </div>
 
                 <div class="topbar-profile">
-                    <button class="btn-notification" title="Notificaciones">🔔</button>
                     <div class="user-badge">
                         <div class="user-meta">
                             <span class="user-name" id="userDisplayName">admin</span>
-                            <span class="user-role">ADMINISTRADOR</span>
+                            <span class="user-role" id="userRoleBadge">ADMINISTRADOR</span>
                         </div>
-                        <div class="user-avatar">A</div>
+                        <div class="user-avatar" id="userAvatarChar">A</div>
                     </div>
                 </div>
             </header>
 
-            <!-- VIEW 1: UIDS MANAGEMENT (DEFAULT) -->
+            <!-- VIEW 1: UIDS MANAGEMENT -->
             <main id="viewUids" class="content-view active">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs</h1>
+                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs Global</h1>
                         <p class="view-subtitle">Administra las licencias y UIDs registradas en el sistema</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
@@ -146,7 +146,7 @@
                     </div>
                     <div class="mini-stat">
                         <span class="stat-count yellow" id="cntWarning">0</span>
-                        <span class="stat-name">Por Vencer</span>
+                        <span class="stat-name">Por Vencer (&le;3d)</span>
                     </div>
                     <div class="mini-stat">
                         <span class="stat-count red" id="cntExpired">0</span>
@@ -167,7 +167,8 @@
                                 <thead>
                                     <tr>
                                         <th>UID Jugador</th>
-                                        <th>Cliente / Reseller</th>
+                                        <th>Cliente / Nota</th>
+                                        <th>Creado Por</th>
                                         <th>Días</th>
                                         <th>Fecha Registro</th>
                                         <th>Expiración</th>
@@ -193,31 +194,60 @@
             <main id="viewDashboard" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">📊 Resumen General</h1>
-                        <p class="view-subtitle">Estadísticas globales de ventas y licencias del panel</p>
+                        <h1 class="view-title">📊 Resumen General del Sistema</h1>
+                        <p class="view-subtitle">Estadísticas globales de ventas y licencias activas</p>
                     </div>
                 </div>
-                <div class="panel-card">
-                    <div class="panel-card-header"><span class="card-icon">📈</span> Rendimiento</div>
-                    <div class="panel-card-body" style="padding: 30px; text-align: center; color: #a1a1aa;">
-                        <p>Panel en funcionamiento óptimo. Todas las licencias sincronizadas correctamente.</p>
+                <div class="stats-row">
+                    <div class="mini-stat">
+                        <span class="stat-count purple" id="dashResellerCount">1</span>
+                        <span class="stat-name">Resellers Registrados</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="stat-count green" id="dashActiveUids">0</span>
+                        <span class="stat-name">Licencias Activas</span>
+                    </div>
+                </div>
+                <div class="panel-card" style="margin-top:20px;">
+                    <div class="panel-card-header"><span class="card-icon">⚡</span> Estado del Servidor</div>
+                    <div class="panel-card-body" style="padding: 24px;">
+                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra funcionando correctamente y sincronizado en la nube.</p>
                     </div>
                 </div>
             </main>
 
-            <!-- VIEW 3: RESELLERS -->
+            <!-- VIEW 3: RESELLERS (ADMIN ONLY) -->
             <main id="viewResellers" class="content-view">
                 <div class="view-header">
                     <div>
                         <h1 class="view-title">👥 Gestión de Resellers</h1>
-                        <p class="view-subtitle">Administra los revendedores con acceso al panel</p>
+                        <p class="view-subtitle">Crea usuarios y contraseñas para tus revendedores autorizados</p>
                     </div>
-                    <button class="btn-action-primary">+ Agregar Reseller</button>
+                    <button class="btn-action-primary" id="btnOpenAddResellerModal">
+                        <span>+ Crear Nuevo Reseller</span>
+                    </button>
                 </div>
+
                 <div class="panel-card">
-                    <div class="panel-card-header"><span class="card-icon">👑</span> Revendedores Activos</div>
-                    <div class="panel-card-body" style="padding: 30px; text-align: center; color: #a1a1aa;">
-                        <p>1 Reseller Administrador Activo (admin)</p>
+                    <div class="panel-card-header"><span class="card-icon">👑</span> Revendedores Autorizados (<span id="resellerCountLabel">1</span>)</div>
+                    <div class="panel-card-body">
+                        <div class="table-responsive">
+                            <table class="selling-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Contraseña</th>
+                                        <th>Rol</th>
+                                        <th>Fecha Creación</th>
+                                        <th>UIDs Creados</th>
+                                        <th class="text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resellersTableBody">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -227,11 +257,11 @@
                 <div class="view-header">
                     <div>
                         <h1 class="view-title">⚙️ Configuración del Servidor API</h1>
-                        <p class="view-subtitle">Configura los parámetros de la API backend vypermods.com</p>
+                        <p class="view-subtitle">Configura la URL de tu API backend para conectar los registros</p>
                     </div>
                 </div>
                 <div class="panel-card" style="max-width: 600px;">
-                    <div class="panel-card-header"><span class="card-icon">🔌</span> Conexión API</div>
+                    <div class="panel-card-header"><span class="card-icon">🔌</span> Servidor API Vypermods</div>
                     <div class="panel-card-body" style="padding: 24px;">
                         <div class="input-group" style="margin-bottom: 16px;">
                             <label>URL ENDPOINT API</label>
@@ -253,7 +283,7 @@
         </div>
     </div>
 
-    <!-- MODAL: AGREGAR NUEVO UID -->
+    <!-- MODAL 1: AGREGAR NUEVO UID -->
     <div id="addModal" class="modal-backdrop hidden">
         <div class="modal-card">
             <div class="modal-header">
@@ -279,13 +309,39 @@
                     </div>
 
                     <div class="input-group">
-                        <label>RESELLER / CLIENTE (OPCIONAL)</label>
+                        <label>CLIENTE / NOTA (OPCIONAL)</label>
                         <input type="text" id="addNoteInput" placeholder="Ej: Cliente VIP - Juan" autocomplete="off" class="styled-input">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="btnCancelAddModal">Cancelar</button>
                     <button type="submit" class="btn-action-primary">+ Registrar Licencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: AGREGAR RESELLER -->
+    <div id="addResellerModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>👥 Crear Nuevo Reseller</h2>
+                <button class="modal-close" id="btnCloseResellerModal">&times;</button>
+            </div>
+            <form id="modalResellerForm">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>NOMBRE DE USUARIO</label>
+                        <input type="text" id="resellerUsernameInput" placeholder="Ej: reseller1" required autocomplete="off" class="styled-input">
+                    </div>
+                    <div class="input-group">
+                        <label>CONTRASEÑA DE ACCESO</label>
+                        <input type="text" id="resellerPasswordInput" placeholder="Ej: clave123" required autocomplete="off" class="styled-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelResellerModal">Cancelar</button>
+                    <button type="submit" class="btn-action-primary">+ Crear Reseller</button>
                 </div>
             </form>
         </div>

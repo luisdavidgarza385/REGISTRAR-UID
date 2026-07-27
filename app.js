@@ -1,9 +1,12 @@
-// Selling Panel - Admin & Reseller Logic
-const STORAGE_KEY = 'selling_panel_uids';
-const CONFIG_KEY  = 'selling_panel_config';
+// Registrar Bypass UID Global - Logic & Canvas Waves
+const STORAGE_UIDS  = 'registrar_bypass_uids';
+const STORAGE_USERS = 'registrar_bypass_users';
+const STORAGE_CFG   = 'registrar_bypass_config';
+const STORAGE_SESS  = 'registrar_bypass_session';
 
-// App State
+// State
 let uids = [];
+let users = [];
 let currentUser = null;
 let apiConfig = {
     url: 'https://apix.vypermods.com/bypass/vp',
@@ -14,13 +17,20 @@ let apiConfig = {
 const loginScreen = document.getElementById('loginScreen');
 const loginForm = document.getElementById('loginForm');
 const loginUsername = document.getElementById('loginUsername');
+const loginPassword = document.getElementById('loginPassword');
+const loginErrorMsg = document.getElementById('loginErrorMsg');
 
 const appLayout = document.getElementById('appLayout');
 const userDisplayName = document.getElementById('userDisplayName');
+const userRoleBadge = document.getElementById('userRoleBadge');
+const userAvatarChar = document.getElementById('userAvatarChar');
+const footerUserLabel = document.getElementById('footerUserLabel');
+const footerRoleLabel = document.getElementById('footerRoleLabel');
 const btnLogout = document.getElementById('btnLogout');
 
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.content-view');
+const navResellersBtn = document.getElementById('navResellersBtn');
 
 const uidsTableBody = document.getElementById('uidsTableBody');
 const uidsEmptyState = document.getElementById('uidsEmptyState');
@@ -32,14 +42,26 @@ const cntTotal = document.getElementById('cntTotal');
 const cntActive = document.getElementById('cntActive');
 const cntWarning = document.getElementById('cntWarning');
 const cntExpired = document.getElementById('cntExpired');
+const dashActiveUids = document.getElementById('dashActiveUids');
+const dashResellerCount = document.getElementById('dashResellerCount');
 
-// Modal Elements
+// Resellers Elements
+const resellersTableBody = document.getElementById('resellersTableBody');
+const resellerCountLabel = document.getElementById('resellerCountLabel');
+const btnOpenAddResellerModal = document.getElementById('btnOpenAddResellerModal');
+const addResellerModal = document.getElementById('addResellerModal');
+const btnCloseResellerModal = document.getElementById('btnCloseResellerModal');
+const btnCancelResellerModal = document.getElementById('btnCancelResellerModal');
+const modalResellerForm = document.getElementById('modalResellerForm');
+const resellerUsernameInput = document.getElementById('resellerUsernameInput');
+const resellerPasswordInput = document.getElementById('resellerPasswordInput');
+
+// UID Modal Elements
 const addModal = document.getElementById('addModal');
 const btnOpenAddModal = document.getElementById('btnOpenAddModal');
 const btnCloseAddModal = document.getElementById('btnCloseAddModal');
 const btnCancelAddModal = document.getElementById('btnCancelAddModal');
 const modalAddForm = document.getElementById('modalAddForm');
-
 const addUidInput = document.getElementById('addUidInput');
 const addDaysInput = document.getElementById('addDaysInput');
 const addNoteInput = document.getElementById('addNoteInput');
@@ -52,22 +74,94 @@ const btnTestApiConnection = document.getElementById('btnTestApiConnection');
 const btnSaveConfig = document.getElementById('btnSaveConfig');
 const apiTestStatus = document.getElementById('apiTestStatus');
 
-// Initialize
+// INITIALIZE
 document.addEventListener('DOMContentLoaded', () => {
+    initCanvasWaves();
+    loadUsers();
     loadConfig();
     loadUids();
     setupEvents();
 
-    // Check saved session
-    const savedUser = localStorage.getItem('selling_panel_session');
-    if (savedUser) {
-        currentUser = savedUser;
-        showApp();
+    const savedSess = localStorage.getItem(STORAGE_SESS);
+    if (savedSess) {
+        try {
+            const parsed = JSON.parse(savedSess);
+            const found = users.find(u => u.username === parsed.username && u.password === parsed.password);
+            if (found) {
+                currentUser = found;
+                showApp();
+            }
+        } catch(e){}
     }
 });
 
+// CANVAS LASER WAVES ANIMATION (60 FPS FLUID)
+function initCanvasWaves() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    let step = 0;
+    const waves = [
+        { amplitude: 45, frequency: 0.006, speed: 0.02, color: 'rgba(192, 132, 252, 0.45)', lineWidth: 3 },
+        { amplitude: 60, frequency: 0.004, speed: 0.015, color: 'rgba(168, 85, 247, 0.35)', lineWidth: 2.5 },
+        { amplitude: 75, frequency: 0.003, speed: 0.01, color: 'rgba(147, 51, 234, 0.25)', lineWidth: 2 },
+        { amplitude: 90, frequency: 0.002, speed: 0.008, color: 'rgba(126, 34, 206, 0.2)', lineWidth: 1.5 }
+    ];
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        step += 1;
+
+        waves.forEach((w, index) => {
+            ctx.beginPath();
+            ctx.lineWidth = w.lineWidth;
+            ctx.strokeStyle = w.color;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = '#a855f7';
+
+            const centerY = height * 0.65 + index * 25;
+            for (let x = 0; x < width; x += 5) {
+                const y = centerY + Math.sin(x * w.frequency + step * w.speed) * w.amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function loadUsers() {
+    const saved = localStorage.getItem(STORAGE_USERS);
+    if (saved) {
+        try { users = JSON.parse(saved); } catch(e){ users = []; }
+    }
+    if (!users || users.length === 0) {
+        users = [
+            { username: 'admin', password: 'admin123', role: 'ADMIN', createdAt: new Date().toISOString() },
+            { username: 'reseller1', password: '123', role: 'RESELLER', createdAt: new Date().toISOString() }
+        ];
+        saveUsers();
+    }
+}
+
+function saveUsers() {
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+}
+
 function loadConfig() {
-    const saved = localStorage.getItem(CONFIG_KEY);
+    const saved = localStorage.getItem(STORAGE_CFG);
     if (saved) {
         try { apiConfig = JSON.parse(saved); } catch(e){}
     }
@@ -76,30 +170,58 @@ function loadConfig() {
 }
 
 function loadUids() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_UIDS);
     if (saved) {
         try { uids = JSON.parse(saved); } catch(e){ uids = []; }
     } else {
-        uids = [];
+        uids = [
+            {
+                uid: '57546546',
+                days: 30,
+                note: 'Cliente Ejemplo VIP',
+                addedBy: 'admin',
+                createdAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
+        saveUids();
     }
 }
 
 function saveUids() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(uids));
+    localStorage.setItem(STORAGE_UIDS, JSON.stringify(uids));
 }
 
 function showApp() {
-    loginScreen.style.display = 'none';
-    appLayout.style.display = 'flex';
-    userDisplayName.textContent = currentUser || 'admin';
+    loginScreen.classList.add('hidden');
+    appLayout.classList.remove('hidden');
+
+    const name = currentUser.username;
+    const role = currentUser.role;
+
+    userDisplayName.textContent = name;
+    userRoleBadge.textContent = role === 'ADMIN' ? 'ADMINISTRADOR' : 'RESELLER';
+    userAvatarChar.textContent = name.charAt(0).toUpperCase();
+
+    footerUserLabel.textContent = name;
+    footerRoleLabel.textContent = role === 'ADMIN' ? 'ADMINISTRADOR' : 'RESELLER';
+
+    // Restringir pestaña de Resellers solo para ADMIN
+    if (role !== 'ADMIN') {
+        navResellersBtn.style.display = 'none';
+    } else {
+        navResellersBtn.style.display = 'flex';
+    }
+
     render();
 }
 
 function logout() {
-    localStorage.removeItem('selling_panel_session');
+    localStorage.removeItem(STORAGE_SESS);
     currentUser = null;
-    appLayout.style.display = 'none';
-    loginScreen.style.display = 'flex';
+    appLayout.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    loginErrorMsg.classList.add('hidden');
 }
 
 function getDaysLeft(expiresAt) {
@@ -119,6 +241,8 @@ function getBadgeHtml(daysLeft) {
 }
 
 function render() {
+    if (!currentUser) return;
+
     // Render Stats
     let total = uids.length;
     let active = 0, warning = 0, expired = 0;
@@ -136,12 +260,21 @@ function render() {
     cntExpired.textContent = expired;
     uidCountLabel.textContent = total;
 
-    // Render Table
+    dashActiveUids.textContent = active;
+    dashResellerCount.textContent = users.length;
+    resellerCountLabel.textContent = users.length;
+
+    // Render UIDs Table
     uidsTableBody.innerHTML = '';
     const q = globalSearch.value.toLowerCase().trim();
 
     const filtered = uids.filter(item => {
-        return item.uid.toLowerCase().includes(q) || (item.note && item.note.toLowerCase().includes(q));
+        const matchesQuery = item.uid.toLowerCase().includes(q) || 
+                             (item.note && item.note.toLowerCase().includes(q)) ||
+                             (item.addedBy && item.addedBy.toLowerCase().includes(q));
+        if (!matchesQuery) return false;
+        // Si el usuario es reseller, muestra todos o los suyos
+        return true;
     });
 
     if (filtered.length === 0) {
@@ -152,11 +285,13 @@ function render() {
             const d = getDaysLeft(item.expiresAt);
             const created = new Date(item.createdAt).toLocaleDateString();
             const expires = new Date(item.expiresAt).toLocaleDateString();
+            const addedBy = item.addedBy || 'admin';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><span class="uid-font">${item.uid}</span></td>
                 <td>${item.note || '<span style="color:var(--text-muted)">-</span>'}</td>
+                <td><span class="badge purple">👤 ${addedBy}</span></td>
                 <td>${item.days} días</td>
                 <td>${created}</td>
                 <td>${expires}</td>
@@ -168,6 +303,30 @@ function render() {
             uidsTableBody.appendChild(tr);
         });
     }
+
+    // Render Resellers Table (Admin View)
+    renderResellersTable();
+}
+
+function renderResellersTable() {
+    resellersTableBody.innerHTML = '';
+    users.forEach(u => {
+        const uidsCreatedCount = uids.filter(i => i.addedBy === u.username).length;
+        const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Sistema';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong style="color:#fff;">👤 ${u.username}</strong></td>
+            <td><code style="color:#c084fc;">${u.password}</code></td>
+            <td><span class="badge ${u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
+            <td>${createdDate}</td>
+            <td><strong>${uidsCreatedCount} UIDs</strong></td>
+            <td class="text-right">
+                ${u.username !== 'admin' ? `<button class="btn-delete-row" onclick="deleteReseller('${u.username}')">🗑️ Eliminar</button>` : '<span style="color:var(--text-muted)">Principal</span>'}
+            </td>
+        `;
+        resellersTableBody.appendChild(tr);
+    });
 }
 
 window.removeUid = (uid) => {
@@ -176,6 +335,14 @@ window.removeUid = (uid) => {
         saveUids();
         render();
         sendApiCall('remove', { account_id: parseInt(uid, 10) });
+    }
+};
+
+window.deleteReseller = (username) => {
+    if (confirm(`¿Estás seguro de borrar al reseller "${username}"?`)) {
+        users = users.filter(u => u.username !== username);
+        saveUsers();
+        render();
     }
 };
 
@@ -191,12 +358,21 @@ async function sendApiCall(action, payload) {
 }
 
 function setupEvents() {
-    // Login Form Submit
+    // Login
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        currentUser = loginUsername.value.trim() || 'admin';
-        localStorage.setItem('selling_panel_session', currentUser);
-        showApp();
+        const user = loginUsername.value.trim();
+        const pass = loginPassword.value.trim();
+
+        const found = users.find(u => u.username.toLowerCase() === user.toLowerCase() && u.password === pass);
+        if (found) {
+            currentUser = found;
+            localStorage.setItem(STORAGE_SESS, JSON.stringify(found));
+            showApp();
+        } else {
+            loginErrorMsg.textContent = '❌ Usuario o contraseña incorrectos';
+            loginErrorMsg.classList.remove('hidden');
+        }
     });
 
     // Logout
@@ -222,7 +398,6 @@ function setupEvents() {
     btnCloseAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
     btnCancelAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
 
-    // Preset Days Buttons
     qDayBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             qDayBtns.forEach(b => b.classList.remove('active'));
@@ -231,7 +406,6 @@ function setupEvents() {
         });
     });
 
-    // Form Add UID Submit
     modalAddForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const uid = addUidInput.value.trim().replace(/\D/g, '');
@@ -248,11 +422,13 @@ function setupEvents() {
             uids[existingIdx].days = days;
             uids[existingIdx].note = note || uids[existingIdx].note;
             uids[existingIdx].expiresAt = expiresAt;
+            uids[existingIdx].addedBy = currentUser.username;
         } else {
             uids.unshift({
                 uid: uid,
                 days: days,
                 note: note,
+                addedBy: currentUser.username,
                 createdAt: now.toISOString(),
                 expiresAt: expiresAt
             });
@@ -267,6 +443,39 @@ function setupEvents() {
         addModal.classList.add('hidden');
     });
 
+    // Modal Add Reseller
+    btnOpenAddResellerModal.addEventListener('click', () => addResellerModal.classList.remove('hidden'));
+    btnCloseResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
+    btnCancelResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
+
+    modalResellerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const resUser = resellerUsernameInput.value.trim();
+        const resPass = resellerPasswordInput.value.trim();
+
+        if (!resUser || !resPass) return;
+
+        if (users.some(u => u.username.toLowerCase() === resUser.toLowerCase())) {
+            alert('El nombre de usuario ya existe. Elige otro.');
+            return;
+        }
+
+        users.push({
+            username: resUser,
+            password: resPass,
+            role: 'RESELLER',
+            createdAt: new Date().toISOString()
+        });
+
+        saveUsers();
+        render();
+
+        resellerUsernameInput.value = '';
+        resellerPasswordInput.value = '';
+        addResellerModal.classList.add('hidden');
+        alert(`Reseller "${resUser}" creado con éxito.`);
+    });
+
     // Global Search Filter
     globalSearch.addEventListener('input', render);
 
@@ -274,7 +483,7 @@ function setupEvents() {
     btnSaveConfig.addEventListener('click', () => {
         apiConfig.url = configApiUrl.value.trim();
         apiConfig.key = configApiKey.value.trim();
-        localStorage.setItem(CONFIG_KEY, JSON.stringify(apiConfig));
+        localStorage.setItem(STORAGE_CFG, JSON.stringify(apiConfig));
         alert('Configuración guardada correctamente.');
     });
 
