@@ -1,4 +1,4 @@
-// SpectralX Registrar Bypass UID Global - Logic & Canvas Waves
+// SpectralX Registrar Bypass UID Global - Logic, Live Countdown & Avatar Upload
 const STORAGE_UIDS  = 'registrar_bypass_uids';
 const STORAGE_USERS = 'registrar_bypass_users';
 const STORAGE_CFG   = 'registrar_bypass_config';
@@ -12,6 +12,7 @@ let apiConfig = {
     url: 'https://apix.vypermods.com/bypass/vp',
     key: 'VPAPI-88HD63H6RSW78HQSHPHXM3P432HULZ'
 };
+let countdownInterval = null;
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -19,6 +20,7 @@ const loginForm = document.getElementById('loginForm');
 const loginUsername = document.getElementById('loginUsername');
 const loginPassword = document.getElementById('loginPassword');
 const loginErrorMsg = document.getElementById('loginErrorMsg');
+const loginLogoPreview = document.getElementById('loginLogoPreview');
 
 const appLayout = document.getElementById('appLayout');
 const sidebar = document.getElementById('sidebar');
@@ -28,10 +30,13 @@ const btnCloseMobileSidebar = document.getElementById('btnCloseMobileSidebar');
 
 const userDisplayName = document.getElementById('userDisplayName');
 const userRoleBadge = document.getElementById('userRoleBadge');
-const userAvatarChar = document.getElementById('userAvatarChar');
+const userAvatarContainer = document.getElementById('userAvatarContainer');
 const footerUserLabel = document.getElementById('footerUserLabel');
 const footerRoleLabel = document.getElementById('footerRoleLabel');
+const footerAvatarImg = document.getElementById('footerAvatarImg');
+const brandLogoContainer = document.getElementById('brandLogoContainer');
 const btnLogout = document.getElementById('btnLogout');
+const topbarProfileBtn = document.getElementById('topbarProfileBtn');
 
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.content-view');
@@ -60,6 +65,11 @@ const btnCancelResellerModal = document.getElementById('btnCancelResellerModal')
 const modalResellerForm = document.getElementById('modalResellerForm');
 const resellerUsernameInput = document.getElementById('resellerUsernameInput');
 const resellerPasswordInput = document.getElementById('resellerPasswordInput');
+
+// Profile Elements
+const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+const avatarFileInput = document.getElementById('avatarFileInput');
+const btnRemoveAvatar = document.getElementById('btnRemoveAvatar');
 
 // UID Modal Elements
 const addModal = document.getElementById('addModal');
@@ -98,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch(e){}
     }
+
+    // Iniciar temporizador en tiempo real (cada 1 segundo)
+    startLiveTimerTicker();
 });
 
 // CANVAS LASER WAVES ANIMATION (60 FPS FLUID)
@@ -155,8 +168,8 @@ function loadUsers() {
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
     if (!users || users.length === 0 || !spectralExists) {
         users = [
-            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', createdAt: new Date().toISOString() },
-            { username: 'reseller1', password: '123', role: 'RESELLER', createdAt: new Date().toISOString() }
+            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, createdAt: new Date().toISOString() },
+            { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, createdAt: new Date().toISOString() }
         ];
         saveUsers();
     }
@@ -207,10 +220,11 @@ function showApp() {
 
     userDisplayName.textContent = name === 'spectralx@gmail.com' ? 'SpectralX' : name;
     userRoleBadge.textContent = role === 'SUPER ADMIN' || role === 'ADMIN' ? 'SUPER ADMIN' : 'RESELLER';
-    userAvatarChar.textContent = name.charAt(0).toUpperCase();
-
+    
     footerUserLabel.textContent = name;
     footerRoleLabel.textContent = role === 'SUPER ADMIN' || role === 'ADMIN' ? 'SUPER ADMIN' : 'RESELLER';
+
+    updateAvatarUI();
 
     if (role !== 'ADMIN' && role !== 'SUPER ADMIN') {
         navResellersBtn.style.display = 'none';
@@ -219,6 +233,31 @@ function showApp() {
     }
 
     render();
+}
+
+function updateAvatarUI() {
+    if (!currentUser) return;
+    const name = currentUser.username;
+    const avatar = currentUser.avatar;
+
+    if (avatar) {
+        userAvatarContainer.innerHTML = `<img src="${avatar}" alt="Avatar">`;
+        footerAvatarImg.innerHTML = `<img src="${avatar}" alt="Avatar">`;
+        brandLogoContainer.innerHTML = `<img src="${avatar}" alt="Brand Logo">`;
+        profileAvatarPreview.innerHTML = `<img src="${avatar}" alt="Avatar Large">`;
+    } else {
+        const char = name.charAt(0).toUpperCase();
+        userAvatarContainer.innerHTML = char;
+        footerAvatarImg.innerHTML = '👤';
+        brandLogoContainer.innerHTML = `
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+        profileAvatarPreview.innerHTML = `<span>${char}</span>`;
+    }
 }
 
 function logout() {
@@ -240,33 +279,67 @@ function openMobileMenu() {
     if (mobileOverlay) mobileOverlay.classList.remove('hidden');
 }
 
-function getDaysLeft(expiresAt) {
-    const expiry = new Date(expiresAt);
+// CÁLCULO DE TIEMPO EXACTO EN DÍAS, HORAS, MINUTOS Y SEGUNDOS
+function getDetailedTimeRemaining(expiresAt) {
     const now = new Date();
-    return Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+    const expiry = new Date(expiresAt);
+    const totalSeconds = Math.floor((expiry - now) / 1000);
+
+    if (totalSeconds <= 0) {
+        return { isExpired: true, text: '0d 0h 0m 0s (Expirado)', days: 0 };
+    }
+
+    const days = Math.floor(totalSeconds / (3600 * 24));
+    const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return {
+        isExpired: false,
+        days: days,
+        text: `${days}d ${hours}h ${minutes}m ${seconds}s`
+    };
 }
 
 function getBadgeHtml(daysLeft) {
     if (daysLeft <= 0) {
         return `<span class="badge red">Expirado</span>`;
     } else if (daysLeft <= 3) {
-        return `<span class="badge yellow">Por Vencer (${daysLeft}d)</span>`;
+        return `<span class="badge yellow">Por Vencer</span>`;
     } else {
-        return `<span class="badge green">Activo (${daysLeft}d)</span>`;
+        return `<span class="badge green">Activo</span>`;
     }
+}
+
+function startLiveTimerTicker() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        const tickers = document.querySelectorAll('.timer-ticker');
+        tickers.forEach(el => {
+            const expiresAt = el.dataset.expires;
+            if (expiresAt) {
+                const info = getDetailedTimeRemaining(expiresAt);
+                el.textContent = info.text;
+                if (info.isExpired) {
+                    el.classList.add('expired');
+                } else {
+                    el.classList.remove('expired');
+                }
+            }
+        });
+    }, 1000);
 }
 
 function render() {
     if (!currentUser) return;
 
-    // Render Stats
     let total = uids.length;
     let active = 0, warning = 0, expired = 0;
 
     uids.forEach(item => {
-        const d = getDaysLeft(item.expiresAt);
-        if (d <= 0) expired++;
-        else if (d <= 3) { warning++; active++; }
+        const info = getDetailedTimeRemaining(item.expiresAt);
+        if (info.isExpired) expired++;
+        else if (info.days <= 3) { warning++; active++; }
         else active++;
     });
 
@@ -280,16 +353,15 @@ function render() {
     dashResellerCount.textContent = users.length;
     resellerCountLabel.textContent = users.length;
 
-    // Render UIDs Table
+    // BUSCADOR EN TIEMPO REAL CON LA LUPITA
     uidsTableBody.innerHTML = '';
     const q = globalSearch.value.toLowerCase().trim();
 
     const filtered = uids.filter(item => {
-        const matchesQuery = item.uid.toLowerCase().includes(q) || 
-                             (item.note && item.note.toLowerCase().includes(q)) ||
-                             (item.addedBy && item.addedBy.toLowerCase().includes(q));
-        if (!matchesQuery) return false;
-        return true;
+        const matchesUid = item.uid.toLowerCase().includes(q);
+        const matchesNote = item.note && item.note.toLowerCase().includes(q);
+        const matchesUser = item.addedBy && item.addedBy.toLowerCase().includes(q);
+        return matchesUid || matchesNote || matchesUser;
     });
 
     if (filtered.length === 0) {
@@ -297,7 +369,7 @@ function render() {
     } else {
         uidsEmptyState.classList.add('hidden');
         filtered.forEach(item => {
-            const d = getDaysLeft(item.expiresAt);
+            const timerInfo = getDetailedTimeRemaining(item.expiresAt);
             const created = new Date(item.createdAt).toLocaleDateString();
             const expires = new Date(item.expiresAt).toLocaleDateString();
             const addedBy = item.addedBy || 'SpectralX';
@@ -310,7 +382,8 @@ function render() {
                 <td>${item.days} días</td>
                 <td>${created}</td>
                 <td>${expires}</td>
-                <td>${getBadgeHtml(d)}</td>
+                <td><span class="timer-ticker ${timerInfo.isExpired ? 'expired' : ''}" data-expires="${item.expiresAt}">${timerInfo.text}</span></td>
+                <td>${getBadgeHtml(timerInfo.days)}</td>
                 <td class="text-right">
                     <button class="btn-delete-row" onclick="removeUid('${item.uid}')">🗑️ Eliminar</button>
                 </td>
@@ -327,10 +400,11 @@ function renderResellersTable() {
     users.forEach(u => {
         const uidsCreatedCount = uids.filter(i => i.addedBy === u.username).length;
         const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Sistema';
+        const userAvatarHtml = u.avatar ? `<img src="${u.avatar}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">` : '👤 ';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong style="color:#fff;">👤 ${u.username}</strong></td>
+            <td><strong style="color:#fff;">${userAvatarHtml}${u.username}</strong></td>
             <td><code style="color:#c084fc;">${u.password}</code></td>
             <td><span class="badge ${u.role === 'SUPER ADMIN' || u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
             <td>${createdDate}</td>
@@ -372,7 +446,6 @@ async function sendApiCall(action, payload) {
 }
 
 function setupEvents() {
-    // Mobile Drawer Controls
     if (btnOpenMobileMenu) btnOpenMobileMenu.addEventListener('click', openMobileMenu);
     if (btnCloseMobileSidebar) btnCloseMobileSidebar.addEventListener('click', closeMobileMenu);
     if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileMenu);
@@ -398,8 +471,17 @@ function setupEvents() {
         }
     });
 
-    // Logout
     btnLogout.addEventListener('click', logout);
+
+    // Click Topbar Profile Avatar to go to Profile
+    if (topbarProfileBtn) {
+        topbarProfileBtn.addEventListener('click', () => {
+            navItems.forEach(i => i.classList.remove('active'));
+            views.forEach(v => v.classList.remove('active'));
+            document.querySelector('[data-view="profile"]').classList.add('active');
+            document.getElementById('viewProfile').classList.add('active');
+        });
+    }
 
     // Navigation Tabs
     navItems.forEach(item => {
@@ -412,10 +494,53 @@ function setupEvents() {
             if (targetView === 'dashboard') document.getElementById('viewDashboard').classList.add('active');
             if (targetView === 'uids') document.getElementById('viewUids').classList.add('active');
             if (targetView === 'resellers') document.getElementById('viewResellers').classList.add('active');
+            if (targetView === 'profile') document.getElementById('viewProfile').classList.add('active');
             if (targetView === 'config') document.getElementById('viewConfig').classList.add('active');
             closeMobileMenu();
         });
     });
+
+    // Subir Foto / Logo de Perfil
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Image = event.target.result;
+                    currentUser.avatar = base64Image;
+                    
+                    // Guardar en array de usuarios
+                    const uIdx = users.findIndex(u => u.username === currentUser.username);
+                    if (uIdx !== -1) {
+                        users[uIdx].avatar = base64Image;
+                        saveUsers();
+                    }
+                    localStorage.setItem(STORAGE_SESS, JSON.stringify(currentUser));
+                    updateAvatarUI();
+                    render();
+                    alert('¡Foto / Logo actualizado correctamente!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (btnRemoveAvatar) {
+        btnRemoveAvatar.addEventListener('click', () => {
+            if (confirm('¿Quitar tu foto de perfil?')) {
+                currentUser.avatar = null;
+                const uIdx = users.findIndex(u => u.username === currentUser.username);
+                if (uIdx !== -1) {
+                    users[uIdx].avatar = null;
+                    saveUsers();
+                }
+                localStorage.setItem(STORAGE_SESS, JSON.stringify(currentUser));
+                updateAvatarUI();
+                render();
+            }
+        });
+    }
 
     // Modal Add UID
     btnOpenAddModal.addEventListener('click', () => addModal.classList.remove('hidden'));
@@ -488,6 +613,7 @@ function setupEvents() {
             username: resUser,
             password: resPass,
             role: 'RESELLER',
+            avatar: null,
             createdAt: new Date().toISOString()
         });
 
@@ -500,7 +626,7 @@ function setupEvents() {
         alert(`Reseller "${resUser}" creado con éxito.`);
     });
 
-    // Global Search Filter
+    // BUSCADOR EN TIEMPO REAL AL ESCRIBIR EN LA LUPITA 🔍
     globalSearch.addEventListener('input', render);
 
     // Save Config

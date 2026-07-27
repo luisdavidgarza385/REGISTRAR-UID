@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpectralX - Registrar Bypass UID Global</title>
+    <title>Registrar Bypass - UID Global</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,15 +16,15 @@
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
-            <div class="login-logo-box">
+            <div class="login-logo-box" id="loginLogoPreview">
                 <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h1 class="login-title">SpectralX Admin</h1>
-            <p class="login-subtitle">Registrar Bypass - UID Global System</p>
+            <h1 class="login-title">Registrar Bypass</h1>
+            <p class="login-subtitle">UID Global System</p>
 
             <form id="loginForm" class="login-form">
                 <div class="input-group">
@@ -60,14 +60,16 @@
         <!-- SIDEBAR -->
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-brand">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <div class="brand-avatar-box" id="brandLogoContainer">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
                 <div class="brand-text-box">
-                    <span class="brand-title">SpectralX <span class="brand-highlight">Panel</span></span>
-                    <span class="brand-badge">UID GLOBAL ADMIN</span>
+                    <span class="brand-title">Registrar<span class="brand-highlight">Bypass</span></span>
+                    <span class="brand-badge">UID GLOBAL</span>
                 </div>
                 <button id="btnCloseMobileSidebar" class="btn-close-mobile">&times;</button>
             </div>
@@ -85,6 +87,10 @@
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Resellers</span>
                 </button>
+                <button class="nav-item" data-view="profile">
+                    <span class="nav-icon">🖼️</span>
+                    <span class="nav-label">Mi Perfil / Logo</span>
+                </button>
                 <button class="nav-item" data-view="config">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Configuración API</span>
@@ -93,7 +99,7 @@
 
             <div class="sidebar-footer">
                 <div class="user-info-footer">
-                    <span class="u-icon">👤</span>
+                    <div class="u-avatar-img" id="footerAvatarImg">👤</div>
                     <div class="u-details">
                         <span id="footerUserLabel" class="u-name">spectralx@gmail.com</span>
                         <span id="footerRoleLabel" class="u-role">SUPER ADMIN</span>
@@ -114,17 +120,17 @@
                     <button id="btnOpenMobileMenu" class="btn-mobile-toggle" aria-label="Abrir Menú">☰</button>
                     <div class="topbar-search">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="globalSearch" placeholder="Buscar UIDs, resellers...">
+                        <input type="text" id="globalSearch" placeholder="Buscar por UID, reseller o notas...">
                     </div>
                 </div>
 
                 <div class="topbar-profile">
-                    <div class="user-badge">
+                    <div class="user-badge" id="topbarProfileBtn">
                         <div class="user-meta">
                             <span class="user-name" id="userDisplayName">SpectralX</span>
                             <span class="user-role" id="userRoleBadge">SUPER ADMIN</span>
                         </div>
-                        <div class="user-avatar" id="userAvatarChar">S</div>
+                        <div class="user-avatar" id="userAvatarContainer">S</div>
                     </div>
                 </div>
             </header>
@@ -134,7 +140,7 @@
                 <div class="view-header">
                     <div>
                         <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs Global</h1>
-                        <p class="view-subtitle">Administra las licencias y UIDs registradas en el sistema</p>
+                        <p class="view-subtitle">Administra las licencias y UIDs con contador exacto en vivo</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
                         <span>+ Agregar Nuevo UID</span>
@@ -176,15 +182,16 @@
                                         <th>UID Jugador</th>
                                         <th>Cliente / Nota</th>
                                         <th>Creado Por</th>
-                                        <th>Días</th>
+                                        <th>Días Totales</th>
                                         <th>Fecha Registro</th>
                                         <th>Expiración</th>
+                                        <th>Tiempo Restante (Vivo)</th>
                                         <th>Estado</th>
                                         <th class="text-right">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="uidsTableBody">
-                                    <!-- Dynamic Rows -->
+                                    <!-- Dynamic Rows with Live Ticker -->
                                 </tbody>
                             </table>
 
@@ -201,7 +208,7 @@
             <main id="viewDashboard" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">📊 Resumen General - SpectralX</h1>
+                        <h1 class="view-title">📊 Resumen General del Sistema</h1>
                         <p class="view-subtitle">Estadísticas globales de ventas y licencias activas</p>
                     </div>
                 </div>
@@ -218,7 +225,7 @@
                 <div class="panel-card" style="margin-top:20px;">
                     <div class="panel-card-header"><span class="card-icon">⚡</span> Estado del Servidor</div>
                     <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px;">El panel SpectralX - Registrar Bypass UID Global se encuentra funcionando correctamente y adaptado para dispositivos móviles.</p>
+                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra funcionando correctamente y adaptado para dispositivos móviles.</p>
                     </div>
                 </div>
             </main>
@@ -259,7 +266,36 @@
                 </div>
             </main>
 
-            <!-- VIEW 4: CONFIGURATION -->
+            <!-- VIEW 4: PROFILE & AVATAR UPLOAD -->
+            <main id="viewProfile" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">🖼️ Personalizar Mi Perfil y Logo</h1>
+                        <p class="view-subtitle">Sube tu propio logo o foto desde tu teléfono o computadora</p>
+                    </div>
+                </div>
+
+                <div class="panel-card" style="max-width: 600px;">
+                    <div class="panel-card-header"><span class="card-icon">📸</span> Foto de Perfil / Logotipo</div>
+                    <div class="panel-card-body" style="padding: 24px;">
+                        <div class="avatar-upload-box">
+                            <div class="avatar-preview-lg" id="profileAvatarPreview">
+                                <span>S</span>
+                            </div>
+                            <div class="upload-controls">
+                                <label for="avatarFileInput" class="btn-action-primary" style="display:inline-block; cursor:pointer;">
+                                    📁 Seleccionar Imagen de tu Galería
+                                </label>
+                                <input type="file" id="avatarFileInput" accept="image/*" class="hidden">
+                                <button type="button" id="btnRemoveAvatar" class="btn-secondary" style="margin-top: 8px;">Quitar Foto</button>
+                                <p class="help-text">Sube cualquier archivo PNG, JPG o GIF. Se guardará permanentemente en tu usuario.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 5: CONFIGURATION -->
             <main id="viewConfig" class="content-view">
                 <div class="view-header">
                     <div>
