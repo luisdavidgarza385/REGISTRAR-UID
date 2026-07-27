@@ -109,6 +109,11 @@
                     <span class="nav-label">Gestión de UIDs</span>
                     <span class="nav-arrow">❯</span>
                 </button>
+                <button class="nav-item" data-view="aiAssistant">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">Asistente IA</span>
+                    <span class="badge green" style="margin-left:auto; font-size:9px;">NUEVO</span>
+                </button>
                 <button class="nav-item" data-view="resellers" id="navResellersBtn">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Resellers</span>
@@ -262,7 +267,40 @@
                 </div>
             </main>
 
-            <!-- VIEW 2: DASHBOARD SUMMARY -->
+            <!-- VIEW 2: AI ASSISTANT VIEW (ASISTENTE IA PARA AUTO REGISTRO Y ELIMINACION) -->
+            <main id="viewAiAssistant" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">🤖 Asistente de Registro Inteligente IA</h1>
+                        <p class="view-subtitle">Registra, extiende o elimina UIDs conversando con la IA sin escribir formularios</p>
+                    </div>
+                </div>
+
+                <div class="panel-card" style="max-width: 800px; margin: 0 auto; width:100%;">
+                    <div class="panel-card-header">
+                        <div class="header-left-title">
+                            <span class="card-icon">⚡</span>
+                            <span class="card-title">Chat Asistente IA (Auto UID Manager)</span>
+                        </div>
+                    </div>
+                    <div class="panel-card-body" style="padding:20px;">
+                        <div id="aiChatConsole" class="ai-chat-box">
+                            <div class="ai-msg bot">
+                                🤖 ¡Hola! Soy tu asistente de licencias IA. Puedes enviarme mensajes como:
+                                <br>• <code>Registrar 57546546 por 30 dias para Juan VIP</code>
+                                <br>• <code>Extender 57546546 por 15 dias</code>
+                                <br>• <code>Eliminar 57546546</code>
+                            </div>
+                        </div>
+                        <div class="ai-input-row" style="margin-top:14px; display:flex; gap:10px;">
+                            <input type="text" id="aiChatInput" placeholder="Escribe el UID, días o acción (Ej: Registrar 12345 por 30 días)..." class="styled-input" style="flex:1;">
+                            <button type="button" id="btnSendAiMsg" class="btn-action-primary">Enviar 🤖</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 3: DASHBOARD SUMMARY -->
             <main id="viewDashboard" class="content-view">
                 <div class="view-header">
                     <div>
@@ -288,12 +326,12 @@
                 </div>
             </main>
 
-            <!-- VIEW 3: RESELLERS (ADMIN ONLY) -->
+            <!-- VIEW 4: RESELLERS (ADMIN ONLY) -->
             <main id="viewResellers" class="content-view">
                 <div class="view-header">
                     <div>
                         <h1 class="view-title">👥 Gestión de Resellers</h1>
-                        <p class="view-subtitle">Crea y administra accesos de usuarios y contraseñas para tus revendedores</p>
+                        <p class="view-subtitle">Crea y administra accesos de usuarios y contraseñas con días de expiración de cuenta</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddResellerModal">
                         <span>+ Crear Nuevo Reseller</span>
@@ -310,7 +348,8 @@
                                         <th>Usuario / Correo</th>
                                         <th>Contraseña</th>
                                         <th>Rol</th>
-                                        <th>Fecha Creación</th>
+                                        <th>Días de Cuenta</th>
+                                        <th>Expiración Cuenta</th>
                                         <th>UIDs Creados</th>
                                         <th class="text-right">Acción</th>
                                     </tr>
@@ -324,7 +363,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 4: PROFILE & AVATAR UPLOAD (SOLO 1 VEZ) -->
+            <!-- VIEW 5: PROFILE & AVATAR UPLOAD (SOLO 1 VEZ) -->
             <main id="viewProfile" class="content-view">
                 <div class="view-header">
                     <div>
@@ -357,7 +396,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 5: LOGS DE ACCESOS DE USUARIO -->
+            <!-- VIEW 6: LOGS DE ACCESOS DE USUARIO -->
             <main id="viewLogs" class="content-view">
                 <div class="view-header">
                     <div>
@@ -375,7 +414,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 6: SOPORTE -->
+            <!-- VIEW 7: SOPORTE -->
             <main id="viewSupport" class="content-view">
                 <div class="view-header">
                     <div>
@@ -394,7 +433,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 7: CONFIGURACION API (SOLO ADMIN) -->
+            <!-- VIEW 8: CONFIGURACION API (SOLO ADMIN) -->
             <main id="viewConfig" class="content-view">
                 <div class="view-header">
                     <div>
@@ -425,7 +464,7 @@
         </div>
     </div>
 
-    <!-- MODAL 1: AGREGAR NUEVO UID (DÍAS CONFIGURABLES LIBREMENTE) -->
+    <!-- MODAL 1: AGREGAR NUEVO UID -->
     <div id="addModal" class="modal-backdrop hidden">
         <div class="modal-card">
             <div class="modal-header">
@@ -440,7 +479,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>DÍAS DE LICENCIA (CONFIGURA CUALQUIER NÚMERO DE DÍAS)</label>
+                        <label>DÍAS DE LICENCIA</label>
                         <input type="number" id="addDaysInput" placeholder="Ingresa los días (Ej: 12, 30, 45, 90...)" min="1" max="3650" required value="30" class="styled-input">
                     </div>
 
@@ -457,7 +496,34 @@
         </div>
     </div>
 
-    <!-- MODAL 2: AGREGAR RESELLER -->
+    <!-- MODAL 2: EXTENDER DÍAS DE LICENCIA DE UID -->
+    <div id="extendModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>➕ Extender Días de Licencia</h2>
+                <button class="modal-close" id="btnCloseExtendModal">&times;</button>
+            </div>
+            <form id="modalExtendForm">
+                <div class="modal-body">
+                    <input type="hidden" id="extendUidTarget">
+                    <div class="input-group">
+                        <label>UID A EXTENDER</label>
+                        <input type="text" id="extendUidDisplay" class="styled-input" readonly style="opacity:0.7;">
+                    </div>
+                    <div class="input-group">
+                        <label>DÍAS ADICIONALES A SUMAR</label>
+                        <input type="number" id="extendDaysInput" placeholder="Ej: 7, 15, 30..." min="1" max="3650" required value="30" class="styled-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelExtendModal">Cancelar</button>
+                    <button type="submit" class="btn-action-primary">➕ Sumar Días</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: AGREGAR RESELLER CON DÍAS DE EXPIRACIÓN -->
     <div id="addResellerModal" class="modal-backdrop hidden">
         <div class="modal-card">
             <div class="modal-header">
@@ -474,6 +540,10 @@
                         <label>CONTRASEÑA DE ACCESO</label>
                         <input type="text" id="resellerPasswordInput" placeholder="Ej: ClaveSegura123" required autocomplete="off" class="styled-input">
                     </div>
+                    <div class="input-group">
+                        <label>DÍAS DE DURACIÓN DE LA CUENTA DEL RESELLER</label>
+                        <input type="number" id="resellerDaysInput" placeholder="Ej: 30 días" min="1" max="3650" required value="30" class="styled-input">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="btnCancelResellerModal">Cancelar</button>
@@ -483,7 +553,7 @@
         </div>
     </div>
 
-    <!-- MODAL 3: ANUNCIOS Y NOTIFICACIONES GLOBALES 🔔 -->
+    <!-- MODAL 4: ANUNCIOS Y NOTIFICACIONES GLOBALES 🔔 -->
     <div id="notifModal" class="modal-backdrop hidden">
         <div class="modal-card" style="width:520px;">
             <div class="modal-header">
@@ -491,7 +561,6 @@
                 <button class="modal-close" id="btnCloseNotifModal">&times;</button>
             </div>
             <div class="modal-body">
-                <!-- Seccion solo para Administrador para emitir anuncios -->
                 <div id="adminBroadcastBox" class="admin-broadcast-panel hidden">
                     <label style="font-size:12px; font-weight:700; color:var(--accent-cyan); display:block; margin-bottom:6px;">EMITIR NUEVO ANUNCIO GLOBAL (SOLO ADMIN):</label>
                     <textarea id="broadcastInput" placeholder="Escribe un anuncio para todos los usuarios y resellers..." class="styled-input" style="height:70px; resize:none;"></textarea>

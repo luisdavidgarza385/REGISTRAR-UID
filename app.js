@@ -1,4 +1,4 @@
-// Registrar Bypass UID Global System - Logic & Features
+// SpectralX Registrar Bypass UID Global System - Full Integrated Logic
 const STORAGE_UIDS  = 'registrar_bypass_uids';
 const STORAGE_USERS = 'registrar_bypass_users';
 const STORAGE_CFG   = 'registrar_bypass_config';
@@ -79,6 +79,7 @@ const btnCancelResellerModal = document.getElementById('btnCancelResellerModal')
 const modalResellerForm = document.getElementById('modalResellerForm');
 const resellerUsernameInput = document.getElementById('resellerUsernameInput');
 const resellerPasswordInput = document.getElementById('resellerPasswordInput');
+const resellerDaysInput = document.getElementById('resellerDaysInput');
 
 // Profile Elements
 const profileAvatarPreview = document.getElementById('profileAvatarPreview');
@@ -87,6 +88,11 @@ const avatarUploadArea = document.getElementById('avatarUploadArea');
 const avatarLockedMessage = document.getElementById('avatarLockedMessage');
 const btnRemoveAvatar = document.getElementById('btnRemoveAvatar');
 const systemLogsBox = document.getElementById('systemLogsBox');
+
+// AI Chat Elements
+const aiChatConsole = document.getElementById('aiChatConsole');
+const aiChatInput = document.getElementById('aiChatInput');
+const btnSendAiMsg = document.getElementById('btnSendAiMsg');
 
 // Notification Modal Elements
 const notifModal = document.getElementById('notifModal');
@@ -105,6 +111,15 @@ const modalAddForm = document.getElementById('modalAddForm');
 const addUidInput = document.getElementById('addUidInput');
 const addDaysInput = document.getElementById('addDaysInput');
 const addNoteInput = document.getElementById('addNoteInput');
+
+// Extend Modal Elements
+const extendModal = document.getElementById('extendModal');
+const btnCloseExtendModal = document.getElementById('btnCloseExtendModal');
+const btnCancelExtendModal = document.getElementById('btnCancelExtendModal');
+const modalExtendForm = document.getElementById('modalExtendForm');
+const extendUidTarget = document.getElementById('extendUidTarget');
+const extendUidDisplay = document.getElementById('extendUidDisplay');
+const extendDaysInput = document.getElementById('extendDaysInput');
 
 // Config Elements
 const configApiUrl = document.getElementById('configApiUrl');
@@ -140,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startLiveTimerTicker();
 });
 
-// TEMA MODO OSCURO / MODO CLARO (🌙 / ☀️)
+// TEMA MODO OSCURO / MODO CLARO
 function loadTheme() {
     const savedTheme = localStorage.getItem(STORAGE_THEME);
     if (savedTheme === 'light') {
@@ -198,7 +213,7 @@ function initAntiDebuggingProtection() {
     })();
 }
 
-// CANVAS SPEED LINES
+// SPEED LINES CANVAS
 function initSpeedLinesCanvas() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
@@ -261,8 +276,8 @@ function loadUsers() {
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
     if (!users || users.length === 0 || !spectralExists) {
         users = [
-            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, avatarLocked: false, createdAt: new Date().toISOString() },
-            { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, avatarLocked: false, createdAt: new Date().toISOString() }
+            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, avatarLocked: false, days: 365, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() },
+            { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, avatarLocked: false, days: 30, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() }
         ];
         saveUsers();
     }
@@ -402,6 +417,13 @@ function sanitizeHtml(str) {
 }
 
 function showApp() {
+    // Verificar si la cuenta del usuario expiró
+    if (currentUser.expiresAt && new Date(currentUser.expiresAt) < new Date() && currentUser.role !== 'SUPER ADMIN') {
+        alert('⚠️ Tu cuenta de revendedor ha expirado. Contacta al Administrador en WhatsApp para renovarla (+50232509982).');
+        logout();
+        return;
+    }
+
     loginScreen.classList.add('hidden');
     appLayout.classList.remove('hidden');
 
@@ -416,7 +438,6 @@ function showApp() {
 
     updateAvatarUI();
 
-    // RESTRICCIÓN DE PESTAÑAS PARA RESELLERS
     const isSuperAdmin = role === 'ADMIN' || role === 'SUPER ADMIN';
     
     if (!isSuperAdmin) {
@@ -454,7 +475,6 @@ function updateAvatarUI() {
         profileAvatarPreview.innerHTML = `<span>${char}</span>`;
     }
 
-    // SI LA FOTO YA FUE CAMBIADA UNA VEZ -> BLOQUEAR CAMBIO ADICIONAL
     if (isLocked) {
         if (avatarUploadArea) avatarUploadArea.classList.add('hidden');
         if (avatarLockedMessage) avatarLockedMessage.classList.remove('hidden');
@@ -540,10 +560,18 @@ function startLiveTimerTicker() {
 function render() {
     if (!currentUser) return;
 
-    let total = uids.length;
+    const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
+
+    // PRIVACIDAD DE UIDS: Revendedores solo ven SUS propios UIDs creados
+    const visibleUids = uids.filter(item => {
+        if (isSuperAdmin) return true; // Super Admin ve todos los UIDs
+        return item.addedBy === currentUser.username;
+    });
+
+    let total = visibleUids.length;
     let active = 0, warning = 0, expired = 0;
 
-    uids.forEach(item => {
+    visibleUids.forEach(item => {
         const info = getDetailedTimeRemaining(item.expiresAt);
         if (info.isExpired) expired++;
         else if (info.days <= 3) { warning++; active++; }
@@ -560,11 +588,11 @@ function render() {
     dashResellerCount.textContent = users.length;
     resellerCountLabel.textContent = users.length;
 
-    // BUSCADOR EN TIEMPO REAL CON LA LUPITA
+    // BUSCADOR EN TIEMPO REAL CON LA LUPITA 🔍
     uidsTableBody.innerHTML = '';
     const q = globalSearch.value.toLowerCase().trim();
 
-    const filtered = uids.filter(item => {
+    const filtered = visibleUids.filter(item => {
         const matchesUid = item.uid.toLowerCase().includes(q);
         const matchesNote = item.note && item.note.toLowerCase().includes(q);
         const matchesUser = item.addedBy && item.addedBy.toLowerCase().includes(q);
@@ -582,6 +610,7 @@ function render() {
             const addedBy = item.addedBy || 'SpectralX';
 
             const tr = document.createElement('tr');
+            tr.setAttribute('id', `uid-row-${item.uid}`);
             tr.innerHTML = `
                 <td><span class="uid-font">${sanitizeHtml(item.uid)}</span></td>
                 <td>${sanitizeHtml(item.note) || '<span style="color:var(--text-muted)">-</span>'}</td>
@@ -591,7 +620,8 @@ function render() {
                 <td>${expires}</td>
                 <td><span class="timer-ticker ${timerInfo.isExpired ? 'expired' : ''}" data-expires="${item.expiresAt}">${timerInfo.text}</span></td>
                 <td>${getBadgeHtml(timerInfo.days)}</td>
-                <td class="text-right">
+                <td class="text-right" style="display:flex; gap:6px; justify-content:flex-end;">
+                    <button class="btn-action-primary" style="padding:4px 8px; font-size:11px;" onclick="openExtendModal('${item.uid}')">➕ Sumar Días</button>
                     <button class="btn-delete-row" onclick="removeUid('${item.uid}')">🗑️ Eliminar</button>
                 </td>
             `;
@@ -608,6 +638,7 @@ function renderResellersTable() {
     users.forEach(u => {
         const uidsCreatedCount = uids.filter(i => i.addedBy === u.username).length;
         const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Sistema';
+        const expiresDate = u.expiresAt ? new Date(u.expiresAt).toLocaleDateString() : 'Ilimitado';
         const userAvatarHtml = u.avatar ? `<img src="${u.avatar}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">` : '👤 ';
 
         const tr = document.createElement('tr');
@@ -615,7 +646,8 @@ function renderResellersTable() {
             <td><strong style="color:var(--text-primary);">${userAvatarHtml}${sanitizeHtml(u.username)}</strong></td>
             <td><code style="color:var(--accent-cyan);">${sanitizeHtml(u.password)}</code></td>
             <td><span class="badge ${u.role === 'SUPER ADMIN' || u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
-            <td>${createdDate}</td>
+            <td>${u.days || 30} días</td>
+            <td>${expiresDate}</td>
             <td><strong>${uidsCreatedCount} UIDs</strong></td>
             <td class="text-right">
                 ${u.username.toLowerCase() !== 'spectralx@gmail.com' ? `<button class="btn-delete-row" onclick="deleteReseller('${u.username}')">🗑️ Eliminar</button>` : '<span style="color:var(--text-muted)">Super Admin</span>'}
@@ -624,6 +656,16 @@ function renderResellersTable() {
         resellersTableBody.appendChild(tr);
     });
 }
+
+// MODAL EXTENDER DÍAS DE UID
+window.openExtendModal = (uid) => {
+    const item = uids.find(i => i.uid === uid);
+    if (item) {
+        extendUidTarget.value = item.uid;
+        extendUidDisplay.value = `${item.uid} (${item.note || 'Sin nota'})`;
+        extendModal.classList.remove('hidden');
+    }
+};
 
 window.removeUid = (uid) => {
     if (confirm(`¿Eliminar la licencia para el UID ${uid}?`)) {
@@ -655,6 +697,72 @@ async function sendApiCall(action, payload) {
     } catch(e){}
 }
 
+// 🤖 ASISTENTE DE IA DE PROCESAMIENTO AUTOMÁTICO DE MENSAJES
+function processAiChatMessage(msg) {
+    const text = msg.trim().toLowerCase();
+    
+    // Extraer digitos para el UID
+    const uidMatch = text.match(/\b\d{5,15}\b/);
+    const daysMatch = text.match(/(\d+)\s*(dias|día|días|dia|d)/);
+
+    const extractedUid = uidMatch ? uidMatch[0] : null;
+    const extractedDays = daysMatch ? parseInt(daysMatch[1], 10) : 30;
+
+    if (text.includes('eliminar') || text.includes('borrar') || text.includes('remove')) {
+        if (!extractedUid) return "🤖 No encontré ningún número de UID en tu mensaje para eliminar. Por favor incluye el UID (Ej: Eliminar 57546546).";
+        const idx = uids.findIndex(i => i.uid === extractedUid);
+        if (idx !== -1) {
+            uids.splice(idx, 1);
+            saveUids();
+            render();
+            sendApiCall('remove', { account_id: parseInt(extractedUid, 10) });
+            return `✅ **Licencia Eliminada**: El UID \`${extractedUid}\` ha sido eliminado exitosamente del sistema.`;
+        } else {
+            return `⚠️ El UID \`${extractedUid}\` no se encontró registrado en tu lista.`;
+        }
+    } else if (text.includes('extender') || text.includes('sumar') || text.includes('renovar')) {
+        if (!extractedUid) return "🤖 Por favor especifica el UID que deseas extender (Ej: Extender 57546546 por 15 dias).";
+        const item = uids.find(i => i.uid === extractedUid);
+        if (item) {
+            item.days += extractedDays;
+            const currentExpiry = new Date(item.expiresAt) > new Date() ? new Date(item.expiresAt) : new Date();
+            item.expiresAt = new Date(currentExpiry.getTime() + extractedDays * 24 * 60 * 60 * 1000).toISOString();
+            saveUids();
+            render();
+            return `✅ **Licencia Extendida**: Se han sumado \`${extractedDays} días\` al UID \`${extractedUid}\`. Nueva expiración: ${new Date(item.expiresAt).toLocaleDateString()}.`;
+        } else {
+            return `⚠️ El UID \`${extractedUid}\` no se encontró registrado.`;
+        }
+    } else if (text.includes('registrar') || text.includes('agregar') || text.includes('crear') || uidMatch) {
+        if (!extractedUid) return "🤖 Para registrar una nueva licencia, envíame el UID del jugador (Ej: Registrar 57546546 por 30 días).";
+        
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + extractedDays * 24 * 60 * 60 * 1000).toISOString();
+
+        const existingIdx = uids.findIndex(i => i.uid === extractedUid);
+        if (existingIdx !== -1) {
+            uids[existingIdx].days = extractedDays;
+            uids[existingIdx].expiresAt = expiresAt;
+            uids[existingIdx].addedBy = currentUser.username;
+        } else {
+            uids.unshift({
+                uid: extractedUid,
+                days: extractedDays,
+                note: 'Registrado vía IA',
+                addedBy: currentUser.username,
+                createdAt: now.toISOString(),
+                expiresAt: expiresAt
+            });
+        }
+        saveUids();
+        render();
+        sendApiCall('add', { account_id: parseInt(extractedUid, 10), for_days: extractedDays });
+        return `🎉 **UID Registrado**: El UID \`${extractedUid}\` ha sido activado exitosamente por \`${extractedDays} días\`.`;
+    }
+
+    return "🤖 No entendí tu comando. Puedes pedirme: 'Registrar [UID] por [Días]', 'Extender [UID] por [Días]' o 'Eliminar [UID]'.";
+}
+
 function setupEvents() {
     if (btnOpenMobileMenu) btnOpenMobileMenu.addEventListener('click', openMobileMenu);
     if (btnCloseMobileSidebar) btnCloseMobileSidebar.addEventListener('click', closeMobileMenu);
@@ -662,7 +770,60 @@ function setupEvents() {
 
     if (btnToggleTheme) btnToggleTheme.addEventListener('click', toggleTheme);
 
-    // Abrir Modal de Notificaciones
+    // AI Chat Send Event
+    if (btnSendAiMsg && aiChatInput) {
+        const sendAi = () => {
+            const val = aiChatInput.value.trim();
+            if (!val) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'ai-msg user';
+            userDiv.innerHTML = `👤 ${sanitizeHtml(val)}`;
+            aiChatConsole.appendChild(userDiv);
+
+            const botReply = processAiChatMessage(val);
+            const botDiv = document.createElement('div');
+            botDiv.className = 'ai-msg bot';
+            botDiv.innerHTML = botReply;
+            aiChatConsole.appendChild(botDiv);
+
+            aiChatInput.value = '';
+            aiChatConsole.scrollTop = aiChatConsole.scrollHeight;
+        };
+
+        btnSendAiMsg.addEventListener('click', sendAi);
+        aiChatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendAi();
+        });
+    }
+
+    // Modal Extend Days Submit
+    if (modalExtendForm) {
+        modalExtendForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const targetUid = extendUidTarget.value;
+            const addDays = parseInt(extendDaysInput.value, 10);
+
+            if (!targetUid || isNaN(addDays) || addDays <= 0) return;
+
+            const item = uids.find(i => i.uid === targetUid);
+            if (item) {
+                item.days += addDays;
+                const currentExpiry = new Date(item.expiresAt) > new Date() ? new Date(item.expiresAt) : new Date();
+                item.expiresAt = new Date(currentExpiry.getTime() + addDays * 24 * 60 * 60 * 1000).toISOString();
+                saveUids();
+                logSystemEvent('UID', `Se extendieron ${addDays} días a la licencia UID ${targetUid} por ${currentUser.username}.`, 'info');
+                render();
+                alert(`¡Se han sumado ${addDays} días al UID ${targetUid} exitosamente!`);
+            }
+            extendModal.classList.add('hidden');
+        });
+    }
+
+    if (btnCloseExtendModal && extendModal) btnCloseExtendModal.addEventListener('click', () => extendModal.classList.add('hidden'));
+    if (btnCancelExtendModal && extendModal) btnCancelExtendModal.addEventListener('click', () => extendModal.classList.add('hidden'));
+
+    // Notifications Modal
     if (btnNotifications) {
         btnNotifications.addEventListener('click', () => {
             const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
@@ -680,7 +841,6 @@ function setupEvents() {
         btnCloseNotifModal.addEventListener('click', () => notifModal.classList.add('hidden'));
     }
 
-    // Enviar Anuncio Global (Solo Admin)
     if (btnSendBroadcast) {
         btnSendBroadcast.addEventListener('click', () => {
             const text = broadcastInput.value.trim();
@@ -702,7 +862,6 @@ function setupEvents() {
         });
     }
 
-    // Toggle Password Visibility
     if (btnTogglePassShow) {
         btnTogglePassShow.addEventListener('click', () => {
             if (loginPassword.type === 'password') {
@@ -715,7 +874,6 @@ function setupEvents() {
         });
     }
 
-    // Fullscreen Toggle
     if (btnToggleFullscreen) {
         btnToggleFullscreen.addEventListener('click', () => {
             if (!document.fullscreenElement) {
@@ -790,6 +948,7 @@ function setupEvents() {
             const targetView = item.dataset.view;
             if (targetView === 'dashboard') document.getElementById('viewDashboard').classList.add('active');
             if (targetView === 'uids') document.getElementById('viewUids').classList.add('active');
+            if (targetView === 'aiAssistant') document.getElementById('viewAiAssistant').classList.add('active');
             if (targetView === 'resellers') document.getElementById('viewResellers').classList.add('active');
             if (targetView === 'profile') document.getElementById('viewProfile').classList.add('active');
             if (targetView === 'config') document.getElementById('viewConfig').classList.add('active');
@@ -799,7 +958,7 @@ function setupEvents() {
         });
     });
 
-    // SUBIR FOTO / LOGO DE PERFIL (SOLO 1 VEZ PERMITIDO)
+    // Subir foto de perfil (1 solo uso)
     if (avatarFileInput) {
         avatarFileInput.addEventListener('change', (e) => {
             if (currentUser.avatarLocked) {
@@ -813,7 +972,7 @@ function setupEvents() {
                 reader.onload = function(event) {
                     const base64Image = event.target.result;
                     currentUser.avatar = base64Image;
-                    currentUser.avatarLocked = true; // BLOQUEO PERMANENTE TRAS 1 UPLOAD
+                    currentUser.avatarLocked = true;
                     
                     const uIdx = users.findIndex(u => u.username === currentUser.username);
                     if (uIdx !== -1) {
@@ -875,7 +1034,7 @@ function setupEvents() {
         addModal.classList.add('hidden');
     });
 
-    // Modal Add Reseller
+    // Modal Add Reseller (Con Días de expiración de cuenta)
     btnOpenAddResellerModal.addEventListener('click', () => addResellerModal.classList.remove('hidden'));
     btnCloseResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
     btnCancelResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
@@ -884,6 +1043,7 @@ function setupEvents() {
         e.preventDefault();
         const resUser = resellerUsernameInput.value.trim();
         const resPass = resellerPasswordInput.value.trim();
+        const resDays = parseInt(resellerDaysInput.value, 10) || 30;
 
         if (!resUser || !resPass) return;
 
@@ -892,27 +1052,43 @@ function setupEvents() {
             return;
         }
 
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + resDays * 24 * 60 * 60 * 1000).toISOString();
+
         users.push({
             username: resUser,
             password: resPass,
             role: 'RESELLER',
             avatar: null,
             avatarLocked: false,
-            createdAt: new Date().toISOString()
+            days: resDays,
+            createdAt: now.toISOString(),
+            expiresAt: expiresAt
         });
 
         saveUsers();
-        logSystemEvent('RESELLER', `Nuevo revendedor "${resUser}" creado por ${currentUser.username}.`, 'info');
+        logSystemEvent('RESELLER', `Nuevo revendedor "${resUser}" creado por ${currentUser.username} con ${resDays} días de duración.`, 'info');
         render();
 
         resellerUsernameInput.value = '';
         resellerPasswordInput.value = '';
         addResellerModal.classList.add('hidden');
-        alert(`Reseller "${resUser}" creado con éxito.`);
+        alert(`Reseller "${resUser}" creado con éxito por ${resDays} días.`);
     });
 
-    // Buscador global
-    globalSearch.addEventListener('input', render);
+    // BUSCADOR EN TIEMPO REAL CON LA LUPITA Y AUTO SCROLL 🔍
+    globalSearch.addEventListener('input', () => {
+        render();
+        const q = globalSearch.value.trim();
+        if (q.length >= 4) {
+            const targetRow = document.querySelector(`[id*="${q}"]`);
+            if (targetRow) {
+                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetRow.style.outline = '2px solid #00c8ff';
+                setTimeout(() => targetRow.style.outline = 'none', 3000);
+            }
+        }
+    });
 
     // Save Config
     btnSaveConfig.addEventListener('click', () => {

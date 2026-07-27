@@ -88,6 +88,41 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* AI CHAT CONSOLE STYLES */
+.ai-chat-box {
+    background: rgba(5, 8, 20, 0.85);
+    border: 1px solid rgba(0, 200, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-msg {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.ai-msg.bot {
+    align-self: flex-start;
+    background: rgba(0, 112, 243, 0.15);
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    color: var(--text-primary);
+}
+
+.ai-msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #0070f3, #00c8ff);
+    color: #ffffff;
+    font-weight: 600;
+}
+
 /* SPEED LINES CANVAS BACKGROUND */
 .bg-canvas {
     position: fixed;
