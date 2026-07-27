@@ -68,7 +68,7 @@
                     <span>🔒 Iniciar Sesión</span>
                 </button>
 
-                <p class="login-footer-note">¿No tienes una cuenta? <span class="accent-link">Contacta al administrador</span></p>
+                <p class="login-footer-note">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
             </form>
         </div>
     </div>
@@ -117,13 +117,13 @@
                     <span class="nav-icon">🖼️</span>
                     <span class="nav-label">Mi Perfil / Logo</span>
                 </button>
-                <button class="nav-item" data-view="config">
+                <button class="nav-item" data-view="config" id="navConfigBtn">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Configuración API</span>
                 </button>
                 <button class="nav-item" data-view="logs">
                     <span class="nav-icon">📜</span>
-                    <span class="nav-label">Logs del Sistema</span>
+                    <span class="nav-label">Logs de Accesos</span>
                 </button>
                 <button class="nav-item" data-view="support">
                     <span class="nav-icon">❓</span>
@@ -160,8 +160,8 @@
                 </div>
 
                 <div class="topbar-profile">
-                    <button class="topbar-action-btn" id="btnNotifications" title="Notificaciones">🔔 <span class="notif-badge">3</span></button>
-                    <button class="topbar-action-btn" id="btnToggleDarkMode" title="Modo Oscuro">🌙</button>
+                    <button class="topbar-action-btn" id="btnNotifications" title="Anuncios y Notificaciones">🔔 <span class="notif-badge" id="notifBadgeCnt">0</span></button>
+                    <button class="topbar-action-btn" id="btnToggleTheme" title="Cambiar Tema Modo Oscuro / Claro">🌙</button>
                     <button class="topbar-action-btn" id="btnToggleFullscreen" title="Pantalla Completa">⛶</button>
 
                     <div class="user-badge" id="topbarProfileBtn">
@@ -178,7 +178,7 @@
             <main id="viewUids" class="content-view active">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title"><span class="title-icon">🛡️</span> Gestión de UIDs Global <span class="security-shield-badge">🔒 CSP + HTTPS + Anti-Debug Activo</span></h1>
+                        <h1 class="view-title"><span class="title-icon">🛡️</span> Gestión de UIDs Global</h1>
                         <p class="view-subtitle">Administra las licencias y UIDs con contador exacto en vivo</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
@@ -229,9 +229,6 @@
                             <span class="card-icon">📋</span>
                             <span class="card-title">Lista de UIDs Registrados (<span id="uidCountLabel">0</span>)</span>
                         </div>
-                        <div class="table-actions">
-                            <button class="btn-table-action" id="btnFilterTable">⚙️ Filtrar</button>
-                        </div>
                     </div>
 
                     <div class="panel-card-body">
@@ -251,7 +248,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="uidsTableBody">
-                                    <!-- Dynamic Rows with Live Ticker -->
+                                    <!-- Dynamic Rows -->
                                 </tbody>
                             </table>
 
@@ -287,12 +284,6 @@
                             <span class="stat-count" id="dashActiveUids">0</span>
                             <span class="stat-name">Licencias Activas</span>
                         </div>
-                    </div>
-                </div>
-                <div class="panel-card" style="margin-top:20px;">
-                    <div class="panel-card-header"><span class="card-icon">🛡️</span> Estado del Servidor & Seguridad</div>
-                    <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra con **Protección Antidepuración (Anti-Debug), Headers CSP y Encriptación Token de Sesión Activos**.</p>
                     </div>
                 </div>
             </main>
@@ -333,48 +324,52 @@
                 </div>
             </main>
 
-            <!-- VIEW 4: PROFILE & AVATAR UPLOAD -->
+            <!-- VIEW 4: PROFILE & AVATAR UPLOAD (SOLO 1 VEZ) -->
             <main id="viewProfile" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">🖼️ Personalizar Mi Perfil y Logo</h1>
-                        <p class="view-subtitle">Sube tu propio logo o foto desde tu teléfono o computadora</p>
+                        <h1 class="view-title">🖼️ Mi Perfil y Logotipo Personalizado</h1>
+                        <p class="view-subtitle">Sube tu logo personal de tu galería (Permitido seleccionar solo 1 vez)</p>
                     </div>
                 </div>
 
                 <div class="panel-card" style="max-width: 600px;">
-                    <div class="panel-card-header"><span class="card-icon">📸</span> Foto de Perfil / Logotipo</div>
+                    <div class="panel-card-header"><span class="card-icon">📸</span> Foto de Perfil de Usuario</div>
                     <div class="panel-card-body" style="padding: 24px;">
                         <div class="avatar-upload-box">
                             <div class="avatar-preview-lg" id="profileAvatarPreview">
                                 <span>S</span>
                             </div>
                             <div class="upload-controls">
-                                <label for="avatarFileInput" class="btn-action-primary" style="display:inline-block; cursor:pointer;">
-                                    📁 Seleccionar Imagen de tu Galería
-                                </label>
-                                <input type="file" id="avatarFileInput" accept="image/*" class="hidden">
-                                <button type="button" id="btnRemoveAvatar" class="btn-secondary" style="margin-top: 8px;">Quitar Foto</button>
-                                <p class="help-text">Sube cualquier archivo PNG, JPG o GIF. Se guardará en tu usuario.</p>
+                                <div id="avatarUploadArea">
+                                    <label for="avatarFileInput" id="lblSelectAvatarFile" class="btn-action-primary" style="display:inline-block; cursor:pointer;">
+                                        📁 Seleccionar Imagen de tu Galería (1 sola vez)
+                                    </label>
+                                    <input type="file" id="avatarFileInput" accept="image/*" class="hidden">
+                                </div>
+                                <div id="avatarLockedMessage" class="avatar-locked-box hidden">
+                                    <span>🔒 Foto de perfil configurada y bloqueada permanentemente.</span>
+                                </div>
+                                <p class="help-text">Una vez seleccionada tu foto de perfil de tu dispositivo, quedará fijada y no se podrá volver a cambiar.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </main>
 
-            <!-- VIEW 5: LOGS DEL SISTEMA -->
+            <!-- VIEW 5: LOGS DE ACCESOS DE USUARIO -->
             <main id="viewLogs" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">📜 Logs del Sistema</h1>
-                        <p class="view-subtitle">Registro de auditoría de todas las acciones del sistema</p>
+                        <h1 class="view-title">📜 Registro de Accesos</h1>
+                        <p class="view-subtitle">Historial de entradas al sistema de tu usuario</p>
                     </div>
                 </div>
                 <div class="panel-card">
-                    <div class="panel-card-header"><span class="card-icon">🔍</span> Registro de Eventos y Sesiones</div>
+                    <div class="panel-card-header"><span class="card-icon">🔍</span> Eventos de Sesión</div>
                     <div class="panel-card-body" style="padding: 20px;">
                         <div id="systemLogsBox" class="logs-console-box">
-                            <!-- Live Audit Logs -->
+                            <!-- User Logs -->
                         </div>
                     </div>
                 </div>
@@ -384,26 +379,27 @@
             <main id="viewSupport" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">❓ Soporte y Ayuda</h1>
-                        <p class="view-subtitle">Contacta al administrador o revisa la documentación del panel</p>
+                        <h1 class="view-title">❓ Soporte Técnico</h1>
+                        <p class="view-subtitle">Contacta al dueño del sistema en WhatsApp</p>
                     </div>
                 </div>
                 <div class="panel-card" style="max-width: 600px;">
-                    <div class="panel-card-header"><span class="card-icon">💬</span> Contacto Directo</div>
+                    <div class="panel-card-header"><span class="card-icon">💬</span> Contacto Directo WhatsApp</div>
                     <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px; margin-bottom: 16px;">Para cualquier consulta, reporte de bug o renovación de API, contacta al Super Administrador:</p>
-                        <div class="support-contact-item">📧 Correo: <strong>spectralx@gmail.com</strong></div>
-                        <div class="support-contact-item" style="margin-top: 8px;">🛡️ Sistema: <strong>Registrar Bypass UID Global System v2.0</strong></div>
+                        <p style="color: var(--text-secondary); font-size:14px; margin-bottom: 16px;">Para cualquier consulta, problema o solicitud de acceso a revendedores, contacta al dueño en WhatsApp:</p>
+                        <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="btn-action-primary" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
+                            <span>💬 Abrir Chat de WhatsApp (+50232509982)</span>
+                        </a>
                     </div>
                 </div>
             </main>
 
-            <!-- VIEW 7: CONFIGURATION -->
+            <!-- VIEW 7: CONFIGURACION API (SOLO ADMIN) -->
             <main id="viewConfig" class="content-view">
                 <div class="view-header">
                     <div>
                         <h1 class="view-title">⚙️ Configuración del Servidor API</h1>
-                        <p class="view-subtitle">Configura la URL de tu API backend para conectar los registros</p>
+                        <p class="view-subtitle">Configura la URL de tu API backend (Solo Administrador)</p>
                     </div>
                 </div>
                 <div class="panel-card" style="max-width: 600px;">
@@ -429,7 +425,7 @@
         </div>
     </div>
 
-    <!-- MODAL 1: AGREGAR NUEVO UID -->
+    <!-- MODAL 1: AGREGAR NUEVO UID (DÍAS CONFIGURABLES LIBREMENTE) -->
     <div id="addModal" class="modal-backdrop hidden">
         <div class="modal-card">
             <div class="modal-header">
@@ -444,14 +440,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label>DÍAS DE LICENCIA</label>
-                        <input type="number" id="addDaysInput" placeholder="30" min="1" max="3650" required value="30" class="styled-input">
-                        <div class="quick-days">
-                            <button type="button" class="q-day-btn" data-days="1">1D</button>
-                            <button type="button" class="q-day-btn" data-days="7">7D</button>
-                            <button type="button" class="q-day-btn active" data-days="30">30D</button>
-                            <button type="button" class="q-day-btn" data-days="365">365D</button>
-                        </div>
+                        <label>DÍAS DE LICENCIA (CONFIGURA CUALQUIER NÚMERO DE DÍAS)</label>
+                        <input type="number" id="addDaysInput" placeholder="Ingresa los días (Ej: 12, 30, 45, 90...)" min="1" max="3650" required value="30" class="styled-input">
                     </div>
 
                     <div class="input-group">
@@ -490,6 +480,28 @@
                     <button type="submit" class="btn-action-primary">+ Crear Reseller</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ANUNCIOS Y NOTIFICACIONES GLOBALES 🔔 -->
+    <div id="notifModal" class="modal-backdrop hidden">
+        <div class="modal-card" style="width:520px;">
+            <div class="modal-header">
+                <h2>🔔 Anuncios y Notificaciones Globales</h2>
+                <button class="modal-close" id="btnCloseNotifModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Seccion solo para Administrador para emitir anuncios -->
+                <div id="adminBroadcastBox" class="admin-broadcast-panel hidden">
+                    <label style="font-size:12px; font-weight:700; color:var(--accent-cyan); display:block; margin-bottom:6px;">EMITIR NUEVO ANUNCIO GLOBAL (SOLO ADMIN):</label>
+                    <textarea id="broadcastInput" placeholder="Escribe un anuncio para todos los usuarios y resellers..." class="styled-input" style="height:70px; resize:none;"></textarea>
+                    <button type="button" id="btnSendBroadcast" class="btn-action-primary" style="margin-top:8px; width:100%;">📢 Enviar Anuncio a Todos</button>
+                </div>
+
+                <div class="notif-list-container" id="notifListContainer">
+                    <!-- Dynamic Broadcast Announcements -->
+                </div>
+            </div>
         </div>
     </div>
 

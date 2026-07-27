@@ -1,14 +1,17 @@
-// Registrar Bypass UID Global System - Logic, Anti-Debug Security & Speed Lines
+// Registrar Bypass UID Global System - Logic & Features
 const STORAGE_UIDS  = 'registrar_bypass_uids';
 const STORAGE_USERS = 'registrar_bypass_users';
 const STORAGE_CFG   = 'registrar_bypass_config';
 const STORAGE_SESS  = 'registrar_bypass_session';
 const STORAGE_LOGS  = 'registrar_bypass_logs';
+const STORAGE_BC    = 'registrar_bypass_broadcasts';
+const STORAGE_THEME = 'registrar_bypass_theme';
 
 // App State
 let uids = [];
 let users = [];
 let systemLogs = [];
+let broadcasts = [];
 let currentUser = null;
 let apiConfig = {
     url: 'https://apix.vypermods.com/bypass/vp',
@@ -43,12 +46,15 @@ const brandLogoContainer = document.getElementById('brandLogoContainer');
 const btnLogout = document.getElementById('btnLogout');
 const topbarProfileBtn = document.getElementById('topbarProfileBtn');
 
-const btnToggleDarkMode = document.getElementById('btnToggleDarkMode');
+const btnToggleTheme = document.getElementById('btnToggleTheme');
 const btnToggleFullscreen = document.getElementById('btnToggleFullscreen');
+const btnNotifications = document.getElementById('btnNotifications');
+const notifBadgeCnt = document.getElementById('notifBadgeCnt');
 
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.content-view');
 const navResellersBtn = document.getElementById('navResellersBtn');
+const navConfigBtn = document.getElementById('navConfigBtn');
 
 const uidsTableBody = document.getElementById('uidsTableBody');
 const uidsEmptyState = document.getElementById('uidsEmptyState');
@@ -77,8 +83,18 @@ const resellerPasswordInput = document.getElementById('resellerPasswordInput');
 // Profile Elements
 const profileAvatarPreview = document.getElementById('profileAvatarPreview');
 const avatarFileInput = document.getElementById('avatarFileInput');
+const avatarUploadArea = document.getElementById('avatarUploadArea');
+const avatarLockedMessage = document.getElementById('avatarLockedMessage');
 const btnRemoveAvatar = document.getElementById('btnRemoveAvatar');
 const systemLogsBox = document.getElementById('systemLogsBox');
+
+// Notification Modal Elements
+const notifModal = document.getElementById('notifModal');
+const btnCloseNotifModal = document.getElementById('btnCloseNotifModal');
+const adminBroadcastBox = document.getElementById('adminBroadcastBox');
+const broadcastInput = document.getElementById('broadcastInput');
+const btnSendBroadcast = document.getElementById('btnSendBroadcast');
+const notifListContainer = document.getElementById('notifListContainer');
 
 // UID Modal Elements
 const addModal = document.getElementById('addModal');
@@ -89,7 +105,6 @@ const modalAddForm = document.getElementById('modalAddForm');
 const addUidInput = document.getElementById('addUidInput');
 const addDaysInput = document.getElementById('addDaysInput');
 const addNoteInput = document.getElementById('addNoteInput');
-const qDayBtns = document.querySelectorAll('.q-day-btn');
 
 // Config Elements
 const configApiUrl = document.getElementById('configApiUrl');
@@ -102,13 +117,15 @@ const apiTestStatus = document.getElementById('apiTestStatus');
 document.addEventListener('DOMContentLoaded', () => {
     initAntiDebuggingProtection();
     initSpeedLinesCanvas();
+    loadTheme();
     loadUsers();
     loadConfig();
     loadUids();
     loadLogs();
+    loadBroadcasts();
     setupEvents();
 
-    const savedSess = localStorage.getItem(STORAGE_SESS);
+    const savedSess = localStorage.getItem(STORAGE_SESS) || sessionStorage.getItem(STORAGE_SESS);
     if (savedSess) {
         try {
             const parsed = JSON.parse(savedSess);
@@ -123,35 +140,54 @@ document.addEventListener('DOMContentLoaded', () => {
     startLiveTimerTicker();
 });
 
-// 🛡️ MAXIMUM SECURITY & ANTI-DEBUGGING PROTECTION
+// TEMA MODO OSCURO / MODO CLARO (🌙 / ☀️)
+function loadTheme() {
+    const savedTheme = localStorage.getItem(STORAGE_THEME);
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        if (btnToggleTheme) btnToggleTheme.textContent = '☀️';
+    } else {
+        document.body.classList.remove('light-theme');
+        if (btnToggleTheme) btnToggleTheme.textContent = '🌙';
+    }
+}
+
+function toggleTheme() {
+    if (document.body.classList.contains('light-theme')) {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem(STORAGE_THEME, 'dark');
+        if (btnToggleTheme) btnToggleTheme.textContent = '🌙';
+    } else {
+        document.body.classList.add('light-theme');
+        localStorage.setItem(STORAGE_THEME, 'light');
+        if (btnToggleTheme) btnToggleTheme.textContent = '☀️';
+    }
+}
+
+// 🛡️ ANTI-DEBUGGING PROTECTION
 function initAntiDebuggingProtection() {
-    // 1. Bloquear inspeccionar elemento por teclado (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S)
     document.addEventListener('keydown', (e) => {
         if (
-            e.keyCode === 123 || // F12
-            (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-            (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) // Ctrl+U / Ctrl+S
+            e.keyCode === 123 || 
+            (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || 
+            (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83))
         ) {
             e.preventDefault();
             e.stopPropagation();
-            logSystemEvent('SEGURIDAD', 'Intento no autorizado de inspeccionar elemento bloqueado.', 'warn');
             return false;
         }
 
-        // CTRL + K para enfocar la barra de búsqueda
         if (e.ctrlKey && e.keyCode === 75) {
             e.preventDefault();
             if (globalSearch) globalSearch.focus();
         }
     });
 
-    // 2. Bloquear clic derecho (Menú contextual)
     document.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         return false;
     });
 
-    // 3. Trap de depuración en bucle para dificultar la inspección con DevTools
     (function antiDebugLoop() {
         try {
             (function() {
@@ -162,7 +198,7 @@ function initAntiDebuggingProtection() {
     })();
 }
 
-// ELECTRIC CYBERPUNK SPEED LINES CANVAS
+// CANVAS SPEED LINES
 function initSpeedLinesCanvas() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
@@ -225,8 +261,8 @@ function loadUsers() {
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
     if (!users || users.length === 0 || !spectralExists) {
         users = [
-            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, createdAt: new Date().toISOString() },
-            { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, createdAt: new Date().toISOString() }
+            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, avatarLocked: false, createdAt: new Date().toISOString() },
+            { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, avatarLocked: false, createdAt: new Date().toISOString() }
         ];
         saveUsers();
     }
@@ -273,14 +309,12 @@ function loadLogs() {
     if (saved) {
         try { systemLogs = JSON.parse(saved); } catch(e){ systemLogs = []; }
     }
-    if (systemLogs.length === 0) {
-        logSystemEvent('SISTEMA', 'Sistema Registrar Bypass UID Global iniciado correctamente.', 'info');
-    }
 }
 
 function logSystemEvent(category, message, type = 'info') {
     const logItem = {
         time: new Date().toLocaleTimeString(),
+        user: currentUser ? currentUser.username : 'Sistema',
         category: category,
         message: message,
         type: type
@@ -291,14 +325,74 @@ function logSystemEvent(category, message, type = 'info') {
     renderLogsUI();
 }
 
+function loadBroadcasts() {
+    const saved = localStorage.getItem(STORAGE_BC);
+    if (saved) {
+        try { broadcasts = JSON.parse(saved); } catch(e){ broadcasts = []; }
+    } else {
+        broadcasts = [
+            {
+                id: 1,
+                author: 'SpectralX',
+                text: 'Bienvenido al panel Registrar Bypass UID Global System.',
+                date: new Date().toLocaleString()
+            }
+        ];
+        localStorage.setItem(STORAGE_BC, JSON.stringify(broadcasts));
+    }
+    updateNotifBadge();
+}
+
+function updateNotifBadge() {
+    if (notifBadgeCnt) {
+        notifBadgeCnt.textContent = broadcasts.length;
+    }
+}
+
 function renderLogsUI() {
-    if (!systemLogsBox) return;
+    if (!systemLogsBox || !currentUser) return;
     systemLogsBox.innerHTML = '';
-    systemLogs.forEach(l => {
+    
+    // FILTRAR LOGS: Si es Reseller, SOLO ve sus propios accesos y acciones
+    const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
+    const filteredLogs = systemLogs.filter(l => {
+        if (isSuperAdmin) return true;
+        return l.user === currentUser.username;
+    });
+
+    if (filteredLogs.length === 0) {
+        systemLogsBox.innerHTML = '<div style="color:var(--text-muted);">No hay eventos de acceso registrados para tu usuario.</div>';
+        return;
+    }
+
+    filteredLogs.forEach(l => {
         const div = document.createElement('div');
         div.className = 'log-line';
-        div.innerHTML = `<span class="log-time">[${l.time}]</span> <span class="log-${l.type}">[${l.category}]</span> <span>${sanitizeHtml(l.message)}</span>`;
+        div.innerHTML = `<span class="log-time">[${l.time}]</span> <span class="log-${l.type}">[${sanitizeHtml(l.category)}]</span> <span>${sanitizeHtml(l.message)}</span>`;
         systemLogsBox.appendChild(div);
+    });
+}
+
+function renderBroadcastsUI() {
+    if (!notifListContainer) return;
+    notifListContainer.innerHTML = '';
+
+    if (broadcasts.length === 0) {
+        notifListContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No hay anuncios recientes.</p>';
+        return;
+    }
+
+    broadcasts.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'notif-card-item';
+        div.innerHTML = `
+            <div class="notif-header">
+                <strong>📢 ${sanitizeHtml(b.author)}</strong>
+                <span>${sanitizeHtml(b.date)}</span>
+            </div>
+            <div class="notif-body">${sanitizeHtml(b.text)}</div>
+        `;
+        notifListContainer.appendChild(div);
     });
 }
 
@@ -322,10 +416,15 @@ function showApp() {
 
     updateAvatarUI();
 
-    if (role !== 'ADMIN' && role !== 'SUPER ADMIN') {
+    // RESTRICCIÓN DE PESTAÑAS PARA RESELLERS
+    const isSuperAdmin = role === 'ADMIN' || role === 'SUPER ADMIN';
+    
+    if (!isSuperAdmin) {
         navResellersBtn.style.display = 'none';
+        navConfigBtn.style.display = 'none';
     } else {
         navResellersBtn.style.display = 'flex';
+        navConfigBtn.style.display = 'flex';
     }
 
     logSystemEvent('AUTENTICACIÓN', `Sesión iniciada por el usuario ${name} (${role}).`, 'info');
@@ -336,6 +435,7 @@ function updateAvatarUI() {
     if (!currentUser) return;
     const name = currentUser.username;
     const avatar = currentUser.avatar;
+    const isLocked = currentUser.avatarLocked;
 
     if (avatar) {
         userAvatarContainer.innerHTML = `<img src="${avatar}" alt="Avatar">`;
@@ -353,11 +453,23 @@ function updateAvatarUI() {
         `;
         profileAvatarPreview.innerHTML = `<span>${char}</span>`;
     }
+
+    // SI LA FOTO YA FUE CAMBIADA UNA VEZ -> BLOQUEAR CAMBIO ADICIONAL
+    if (isLocked) {
+        if (avatarUploadArea) avatarUploadArea.classList.add('hidden');
+        if (avatarLockedMessage) avatarLockedMessage.classList.remove('hidden');
+        if (btnRemoveAvatar) btnRemoveAvatar.classList.add('hidden');
+    } else {
+        if (avatarUploadArea) avatarUploadArea.classList.remove('hidden');
+        if (avatarLockedMessage) avatarLockedMessage.classList.add('hidden');
+        if (btnRemoveAvatar) btnRemoveAvatar.classList.remove('hidden');
+    }
 }
 
 function logout() {
     logSystemEvent('AUTENTICACIÓN', `Sesión cerrada por ${currentUser ? currentUser.username : 'Usuario'}.`, 'warn');
     localStorage.removeItem(STORAGE_SESS);
+    sessionStorage.removeItem(STORAGE_SESS);
     currentUser = null;
     appLayout.classList.add('hidden');
     loginScreen.classList.remove('hidden');
@@ -500,7 +612,7 @@ function renderResellersTable() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong style="color:#fff;">${userAvatarHtml}${sanitizeHtml(u.username)}</strong></td>
+            <td><strong style="color:var(--text-primary);">${userAvatarHtml}${sanitizeHtml(u.username)}</strong></td>
             <td><code style="color:var(--accent-cyan);">${sanitizeHtml(u.password)}</code></td>
             <td><span class="badge ${u.role === 'SUPER ADMIN' || u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
             <td>${createdDate}</td>
@@ -517,7 +629,7 @@ window.removeUid = (uid) => {
     if (confirm(`¿Eliminar la licencia para el UID ${uid}?`)) {
         uids = uids.filter(i => i.uid !== uid);
         saveUids();
-        logSystemEvent('UID', `Licencia para UID ${uid} eliminada.`, 'warn');
+        logSystemEvent('UID', `Licencia para UID ${uid} eliminada por ${currentUser.username}.`, 'warn');
         render();
         sendApiCall('remove', { account_id: parseInt(uid, 10) });
     }
@@ -548,7 +660,49 @@ function setupEvents() {
     if (btnCloseMobileSidebar) btnCloseMobileSidebar.addEventListener('click', closeMobileMenu);
     if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileMenu);
 
-    // Toggle Mostrar/Ocultar Contraseña
+    if (btnToggleTheme) btnToggleTheme.addEventListener('click', toggleTheme);
+
+    // Abrir Modal de Notificaciones
+    if (btnNotifications) {
+        btnNotifications.addEventListener('click', () => {
+            const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
+            if (isSuperAdmin && adminBroadcastBox) {
+                adminBroadcastBox.classList.remove('hidden');
+            } else if (adminBroadcastBox) {
+                adminBroadcastBox.classList.add('hidden');
+            }
+            renderBroadcastsUI();
+            if (notifModal) notifModal.classList.remove('hidden');
+        });
+    }
+
+    if (btnCloseNotifModal && notifModal) {
+        btnCloseNotifModal.addEventListener('click', () => notifModal.classList.add('hidden'));
+    }
+
+    // Enviar Anuncio Global (Solo Admin)
+    if (btnSendBroadcast) {
+        btnSendBroadcast.addEventListener('click', () => {
+            const text = broadcastInput.value.trim();
+            if (!text) return;
+
+            broadcasts.unshift({
+                id: Date.now(),
+                author: currentUser.username === 'spectralx@gmail.com' ? 'SpectralX (Super Admin)' : currentUser.username,
+                text: text,
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem(STORAGE_BC, JSON.stringify(broadcasts));
+            broadcastInput.value = '';
+            updateNotifBadge();
+            renderBroadcastsUI();
+            logSystemEvent('ANUNCIO', `Anuncio global emitido: "${text.substring(0, 30)}..."`, 'info');
+            alert('¡Anuncio emitido a todos los usuarios!');
+        });
+    }
+
+    // Toggle Password Visibility
     if (btnTogglePassShow) {
         btnTogglePassShow.addEventListener('click', () => {
             if (loginPassword.type === 'password') {
@@ -561,7 +715,7 @@ function setupEvents() {
         });
     }
 
-    // Toggle Pantalla Completa
+    // Fullscreen Toggle
     if (btnToggleFullscreen) {
         btnToggleFullscreen.addEventListener('click', () => {
             if (!document.fullscreenElement) {
@@ -572,7 +726,7 @@ function setupEvents() {
         });
     }
 
-    // Login Form Submit (con bloqueo de fuerza bruta)
+    // Login Form Submit
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -605,9 +759,9 @@ function setupEvents() {
         } else {
             loginFailedAttempts++;
             if (loginFailedAttempts >= 5) {
-                loginLockoutTime = Date.now() + 60000; // 60s lockout
+                loginLockoutTime = Date.now() + 60000;
                 loginErrorMsg.textContent = '🚫 Demasiados intentos fallidos. Sistema bloqueado por 60 segundos por seguridad.';
-                logSystemEvent('SEGURIDAD', `Bloqueo temporal por intentos fallidos repetidos desde IP local.`, 'err');
+                logSystemEvent('SEGURIDAD', `Bloqueo temporal por intentos fallidos de login.`, 'err');
             } else {
                 loginErrorMsg.textContent = `❌ Usuario o contraseña incorrectos (Intento ${loginFailedAttempts}/5)`;
             }
@@ -645,44 +799,35 @@ function setupEvents() {
         });
     });
 
-    // Subir Foto / Logo de Perfil
+    // SUBIR FOTO / LOGO DE PERFIL (SOLO 1 VEZ PERMITIDO)
     if (avatarFileInput) {
         avatarFileInput.addEventListener('change', (e) => {
+            if (currentUser.avatarLocked) {
+                alert('Tu foto de perfil ya fue configurada y no puede ser cambiada de nuevo.');
+                return;
+            }
+
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const base64Image = event.target.result;
                     currentUser.avatar = base64Image;
+                    currentUser.avatarLocked = true; // BLOQUEO PERMANENTE TRAS 1 UPLOAD
                     
                     const uIdx = users.findIndex(u => u.username === currentUser.username);
                     if (uIdx !== -1) {
                         users[uIdx].avatar = base64Image;
+                        users[uIdx].avatarLocked = true;
                         saveUsers();
                     }
                     localStorage.setItem(STORAGE_SESS, JSON.stringify(currentUser));
                     updateAvatarUI();
-                    logSystemEvent('PERFIL', 'Logotipo/Foto de perfil actualizada.', 'info');
+                    logSystemEvent('PERFIL', 'Foto de perfil fijada permanentemente (1 sola subida permitida).', 'info');
                     render();
-                    alert('¡Foto / Logo actualizado correctamente!');
+                    alert('¡Foto de perfil establecida con éxito! Ha quedado bloqueada para cambios futuros.');
                 };
                 reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    if (btnRemoveAvatar) {
-        btnRemoveAvatar.addEventListener('click', () => {
-            if (confirm('¿Quitar tu foto de perfil?')) {
-                currentUser.avatar = null;
-                const uIdx = users.findIndex(u => u.username === currentUser.username);
-                if (uIdx !== -1) {
-                    users[uIdx].avatar = null;
-                    saveUsers();
-                }
-                localStorage.setItem(STORAGE_SESS, JSON.stringify(currentUser));
-                updateAvatarUI();
-                render();
             }
         });
     }
@@ -691,14 +836,6 @@ function setupEvents() {
     btnOpenAddModal.addEventListener('click', () => addModal.classList.remove('hidden'));
     btnCloseAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
     btnCancelAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
-
-    qDayBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            qDayBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            addDaysInput.value = btn.dataset.days;
-        });
-    });
 
     modalAddForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -760,6 +897,7 @@ function setupEvents() {
             password: resPass,
             role: 'RESELLER',
             avatar: null,
+            avatarLocked: false,
             createdAt: new Date().toISOString()
         });
 
