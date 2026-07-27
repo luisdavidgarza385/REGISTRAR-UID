@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registrar Bypass - UID Global</title>
+    <title>Registrar Bypass - UID Global System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-theme">
-    <!-- ANIMATED NEON CANVAS BACKGROUND -->
+<body class="dark-theme no-select">
+    <!-- SPEED LINES ANIMATED CANVAS BACKGROUND -->
     <canvas id="bgCanvas" class="bg-canvas"></canvas>
 
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="login-logo-box" id="loginLogoPreview">
-                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L3 7V12C3 17.5 7 21 12 22C17 21 21 17.5 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#00c8ff" stroke-width="2"/>
+                    <path d="M12 6L7 11H10V16H14V11H17L12 6Z" fill="#ffffff"/>
+                    <defs>
+                        <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#0070f3"/>
+                            <stop offset="1" stop-color="#7000ff"/>
+                        </linearGradient>
+                    </defs>
                 </svg>
             </div>
             <h1 class="login-title">Registrar Bypass</h1>
@@ -28,26 +33,35 @@
 
             <form id="loginForm" class="login-form">
                 <div class="input-group">
-                    <label>USUARIO / CORREO DE ACCESO</label>
                     <div class="input-field-wrapper">
                         <span class="field-icon">👤</span>
-                        <input type="text" id="loginUsername" placeholder="Ingresa tu usuario o correo" required autocomplete="username">
+                        <input type="text" id="loginUsername" placeholder="Usuario o correo electrónico" required autocomplete="off">
                     </div>
                 </div>
 
                 <div class="input-group">
-                    <label>CONTRASEÑA</label>
                     <div class="input-field-wrapper">
                         <span class="field-icon">🔒</span>
-                        <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                        <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="off">
+                        <span id="btnTogglePassShow" class="field-icon-right" title="Mostrar/Ocultar contraseña">👁️</span>
                     </div>
+                </div>
+
+                <div class="login-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="chkRememberMe" checked>
+                        <span class="checkmark"></span>
+                        <span class="chk-label">Recordarme</span>
+                    </label>
                 </div>
 
                 <div id="loginErrorMsg" class="login-error hidden"></div>
 
-                <button type="submit" class="btn-purple-glow">
-                    <span>➡️ Iniciar Sesión</span>
+                <button type="submit" class="btn-blue-glow">
+                    <span>🔒 Iniciar Sesión</span>
                 </button>
+
+                <p class="login-footer-note">¿No tienes una cuenta? <span class="accent-link">Contacta al administrador</span></p>
             </form>
         </div>
     </div>
@@ -61,15 +75,19 @@
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <div class="brand-avatar-box" id="brandLogoContainer">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M2 17L12 22L22 17" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M2 12L12 17L22 12" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L3 7V12C3 17.5 7 21 12 22C17 21 21 17.5 21 12V7L12 2Z" fill="url(#brandShieldGrad)" stroke="#00c8ff" stroke-width="1.5"/>
+                        <defs>
+                            <linearGradient id="brandShieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#0070f3"/>
+                                <stop offset="1" stop-color="#7000ff"/>
+                            </linearGradient>
+                        </defs>
                     </svg>
                 </div>
                 <div class="brand-text-box">
                     <span class="brand-title">Registrar<span class="brand-highlight">Bypass</span></span>
-                    <span class="brand-badge">UID GLOBAL</span>
+                    <span class="brand-badge">UID GLOBAL SYSTEM 🛡️</span>
                 </div>
                 <button id="btnCloseMobileSidebar" class="btn-close-mobile">&times;</button>
             </div>
@@ -82,6 +100,7 @@
                 <button class="nav-item active" data-view="uids">
                     <span class="nav-icon">🔑</span>
                     <span class="nav-label">Gestión de UIDs</span>
+                    <span class="nav-arrow">❯</span>
                 </button>
                 <button class="nav-item" data-view="resellers" id="navResellersBtn">
                     <span class="nav-icon">👥</span>
@@ -94,6 +113,14 @@
                 <button class="nav-item" data-view="config">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Configuración API</span>
+                </button>
+                <button class="nav-item" data-view="logs">
+                    <span class="nav-icon">📜</span>
+                    <span class="nav-label">Logs del Sistema</span>
+                </button>
+                <button class="nav-item" data-view="support">
+                    <span class="nav-icon">❓</span>
+                    <span class="nav-label">Soporte</span>
                 </button>
             </nav>
 
@@ -121,16 +148,21 @@
                     <div class="topbar-search">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="globalSearch" placeholder="Buscar por UID, reseller o notas...">
+                        <span class="shortcut-badge">CTRL + K</span>
                     </div>
                 </div>
 
                 <div class="topbar-profile">
+                    <button class="topbar-action-btn" id="btnNotifications" title="Notificaciones">🔔 <span class="notif-badge">3</span></button>
+                    <button class="topbar-action-btn" id="btnToggleDarkMode" title="Modo Oscuro">🌙</button>
+                    <button class="topbar-action-btn" id="btnToggleFullscreen" title="Pantalla Completa">⛶</button>
+
                     <div class="user-badge" id="topbarProfileBtn">
+                        <div class="user-avatar" id="userAvatarContainer">S</div>
                         <div class="user-meta">
                             <span class="user-name" id="userDisplayName">SpectralX</span>
                             <span class="user-role" id="userRoleBadge">SUPER ADMIN</span>
                         </div>
-                        <div class="user-avatar" id="userAvatarContainer">S</div>
                     </div>
                 </div>
             </header>
@@ -139,7 +171,7 @@
             <main id="viewUids" class="content-view active">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs Global</h1>
+                        <h1 class="view-title"><span class="title-icon">🛡️</span> Gestión de UIDs Global <span class="security-shield-badge">🔒 Anti-Debug Activo</span></h1>
                         <p class="view-subtitle">Administra las licencias y UIDs con contador exacto en vivo</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
@@ -149,29 +181,50 @@
 
                 <!-- STATS COUNTERS -->
                 <div class="stats-row">
-                    <div class="mini-stat">
-                        <span class="stat-count cyan" id="cntTotal">0</span>
-                        <span class="stat-name">Total UIDs</span>
+                    <div class="mini-stat stat-blue">
+                        <div class="stat-icon-box">📦</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="cntTotal">0</span>
+                            <span class="stat-name">Total UIDs</span>
+                            <span class="stat-sub">Todos los registros</span>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="stat-count green" id="cntActive">0</span>
-                        <span class="stat-name">Activos</span>
+                    <div class="mini-stat stat-green">
+                        <div class="stat-icon-box">👤</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="cntActive">0</span>
+                            <span class="stat-name">Activos</span>
+                            <span class="stat-sub">Licencias activas</span>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="stat-count yellow" id="cntWarning">0</span>
-                        <span class="stat-name">Por Vencer (&le;3d)</span>
+                    <div class="mini-stat stat-yellow">
+                        <div class="stat-icon-box">⏰</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="cntWarning">0</span>
+                            <span class="stat-name">Por Vencer (&le;3d)</span>
+                            <span class="stat-sub">Expiran pronto</span>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="stat-count red" id="cntExpired">0</span>
-                        <span class="stat-name">Expirados</span>
+                    <div class="mini-stat stat-red">
+                        <div class="stat-icon-box">🚫</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="cntExpired">0</span>
+                            <span class="stat-name">Expirados</span>
+                            <span class="stat-sub">Licencias expiradas</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- CONTENT CARD / TABLE -->
                 <div class="panel-card">
                     <div class="panel-card-header">
-                        <span class="card-icon">📋</span>
-                        <span class="card-title">Lista de UIDs Registrados (<span id="uidCountLabel">0</span>)</span>
+                        <div class="header-left-title">
+                            <span class="card-icon">📋</span>
+                            <span class="card-title">Lista de UIDs Registrados (<span id="uidCountLabel">0</span>)</span>
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn-table-action" id="btnFilterTable">⚙️ Filtrar</button>
+                        </div>
                     </div>
 
                     <div class="panel-card-body">
@@ -185,7 +238,7 @@
                                         <th>Días Totales</th>
                                         <th>Fecha Registro</th>
                                         <th>Expiración</th>
-                                        <th>Tiempo Restante (Vivo)</th>
+                                        <th>Tiempo Restante</th>
                                         <th>Estado</th>
                                         <th class="text-right">Acciones</th>
                                     </tr>
@@ -196,8 +249,9 @@
                             </table>
 
                             <div id="uidsEmptyState" class="empty-box">
-                                <div class="empty-icon-box">📥</div>
-                                <p class="empty-text">No hay UIDs registrados en el sistema</p>
+                                <div class="empty-icon-box">📦</div>
+                                <p class="empty-title">No hay UIDs registrados en el sistema</p>
+                                <p class="empty-sub">¡Agrega tu primer UID para comenzar!</p>
                             </div>
                         </div>
                     </div>
@@ -213,19 +267,25 @@
                     </div>
                 </div>
                 <div class="stats-row">
-                    <div class="mini-stat">
-                        <span class="stat-count purple" id="dashResellerCount">1</span>
-                        <span class="stat-name">Resellers Registrados</span>
+                    <div class="mini-stat stat-blue">
+                        <div class="stat-icon-box">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="dashResellerCount">1</span>
+                            <span class="stat-name">Resellers Registrados</span>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="stat-count green" id="dashActiveUids">0</span>
-                        <span class="stat-name">Licencias Activas</span>
+                    <div class="mini-stat stat-green">
+                        <div class="stat-icon-box">⚡</div>
+                        <div class="stat-info">
+                            <span class="stat-count" id="dashActiveUids">0</span>
+                            <span class="stat-name">Licencias Activas</span>
+                        </div>
                     </div>
                 </div>
                 <div class="panel-card" style="margin-top:20px;">
-                    <div class="panel-card-header"><span class="card-icon">⚡</span> Estado del Servidor</div>
+                    <div class="panel-card-header"><span class="card-icon">🛡️</span> Estado del Servidor & Seguridad</div>
                     <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra funcionando correctamente y adaptado para dispositivos móviles.</p>
+                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra con **Protección Antidepuración (Anti-Debug) y Encriptación Token de Sesión Activos**.</p>
                     </div>
                 </div>
             </main>
@@ -288,14 +348,50 @@
                                 </label>
                                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden">
                                 <button type="button" id="btnRemoveAvatar" class="btn-secondary" style="margin-top: 8px;">Quitar Foto</button>
-                                <p class="help-text">Sube cualquier archivo PNG, JPG o GIF. Se guardará permanentemente en tu usuario.</p>
+                                <p class="help-text">Sube cualquier archivo PNG, JPG o GIF. Se guardará en tu usuario.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </main>
 
-            <!-- VIEW 5: CONFIGURATION -->
+            <!-- VIEW 5: LOGS DEL SISTEMA -->
+            <main id="viewLogs" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">📜 Logs del Sistema</h1>
+                        <p class="view-subtitle">Registro de auditoría de todas las acciones del sistema</p>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-card-header"><span class="card-icon">🔍</span> Registro de Eventos y Sesiones</div>
+                    <div class="panel-card-body" style="padding: 20px;">
+                        <div id="systemLogsBox" class="logs-console-box">
+                            <!-- Live Audit Logs -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 6: SOPORTE -->
+            <main id="viewSupport" class="content-view">
+                <div class="view-header">
+                    <div>
+                        <h1 class="view-title">❓ Soporte y Ayuda</h1>
+                        <p class="view-subtitle">Contacta al administrador o revisa la documentación del panel</p>
+                    </div>
+                </div>
+                <div class="panel-card" style="max-width: 600px;">
+                    <div class="panel-card-header"><span class="card-icon">💬</span> Contacto Directo</div>
+                    <div class="panel-card-body" style="padding: 24px;">
+                        <p style="color: var(--text-secondary); font-size:14px; margin-bottom: 16px;">Para cualquier consulta, reporte de bug o renovación de API, contacta al Super Administrador:</p>
+                        <div class="support-contact-item">📧 Correo: <strong>spectralx@gmail.com</strong></div>
+                        <div class="support-contact-item" style="margin-top: 8px;">🛡️ Sistema: <strong>Registrar Bypass UID Global System v2.0</strong></div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- VIEW 7: CONFIGURATION -->
             <main id="viewConfig" class="content-view">
                 <div class="view-header">
                     <div>
