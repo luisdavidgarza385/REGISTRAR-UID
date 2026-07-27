@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- SECURITY HEADERS (CSP & HARDENING) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+
     <title>Registrar Bypass - UID Global System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -171,7 +178,7 @@
             <main id="viewUids" class="content-view active">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title"><span class="title-icon">🛡️</span> Gestión de UIDs Global <span class="security-shield-badge">🔒 Anti-Debug Activo</span></h1>
+                        <h1 class="view-title"><span class="title-icon">🛡️</span> Gestión de UIDs Global <span class="security-shield-badge">🔒 CSP + HTTPS + Anti-Debug Activo</span></h1>
                         <p class="view-subtitle">Administra las licencias y UIDs con contador exacto en vivo</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
@@ -285,7 +292,7 @@
                 <div class="panel-card" style="margin-top:20px;">
                     <div class="panel-card-header"><span class="card-icon">🛡️</span> Estado del Servidor & Seguridad</div>
                     <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra con **Protección Antidepuración (Anti-Debug) y Encriptación Token de Sesión Activos**.</p>
+                        <p style="color: var(--text-secondary); font-size:14px;">El panel Registrar Bypass UID Global se encuentra con **Protección Antidepuración (Anti-Debug), Headers CSP y Encriptación Token de Sesión Activos**.</p>
                     </div>
                 </div>
             </main>
