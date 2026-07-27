@@ -20,7 +20,7 @@
     <!-- SPEED LINES ANIMATED CANVAS BACKGROUND -->
     <canvas id="bgCanvas" class="bg-canvas"></canvas>
 
-    <!-- LOGIN SCREEN WITH AI ASSISTANT DIRECT ACCESS -->
+    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="login-logo-box" id="loginLogoPreview">
@@ -68,14 +68,7 @@
                     <span>🔒 Iniciar Sesión</span>
                 </button>
 
-                <!-- BOTON / ACCESO DIRECTO ASISTENTE IA EN EL LOGIN -->
-                <div class="ai-login-shortcut-box" style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(0,200,255,0.15);">
-                    <button type="button" id="btnQuickAiLogin" class="btn-secondary" style="width:100%; font-weight:700; color:var(--accent-cyan); border-color:rgba(0,200,255,0.3); background:rgba(0,112,243,0.12);">
-                        🤖 Ingresar con Asistente IA (UID IA)
-                    </button>
-                </div>
-
-                <p class="login-footer-note" style="margin-top:12px;">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
+                <p class="login-footer-note" style="margin-top:16px;">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
             </form>
         </div>
     </div>
@@ -107,16 +100,16 @@
             </div>
 
             <nav class="sidebar-menu">
-                <button class="nav-item" data-view="dashboard">
+                <button class="nav-item" data-view="dashboard" id="navDashboardBtn">
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Dashboard</span>
                 </button>
-                <button class="nav-item active" data-view="uids">
+                <button class="nav-item active" data-view="uids" id="navUidsBtn">
                     <span class="nav-icon">🔑</span>
                     <span class="nav-label">Gestión de UIDs</span>
                     <span class="nav-arrow">❯</span>
                 </button>
-                <button class="nav-item" data-view="aiAssistant">
+                <button class="nav-item" data-view="aiAssistant" id="navAiBtn">
                     <span class="nav-icon">🤖</span>
                     <span class="nav-label">Asistente IA</span>
                     <span class="badge green" style="margin-left:auto; font-size:9px;">NUEVO</span>
@@ -125,7 +118,7 @@
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Resellers</span>
                 </button>
-                <button class="nav-item" data-view="profile">
+                <button class="nav-item" data-view="profile" id="navProfileBtn">
                     <span class="nav-icon">🖼️</span>
                     <span class="nav-label">Mi Perfil / Logo</span>
                 </button>
@@ -133,11 +126,11 @@
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Configuración API</span>
                 </button>
-                <button class="nav-item" data-view="logs">
+                <button class="nav-item" data-view="logs" id="navLogsBtn">
                     <span class="nav-icon">📜</span>
                     <span class="nav-label">Logs de Accesos</span>
                 </button>
-                <button class="nav-item" data-view="support">
+                <button class="nav-item" data-view="support" id="navSupportBtn">
                     <span class="nav-icon">❓</span>
                     <span class="nav-label">Soporte</span>
                 </button>
@@ -164,7 +157,7 @@
             <header class="topbar">
                 <div class="topbar-left">
                     <button id="btnOpenMobileMenu" class="btn-mobile-toggle" aria-label="Abrir Menú">☰</button>
-                    <div class="topbar-search">
+                    <div class="topbar-search" id="topbarSearchContainer">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="globalSearch" placeholder="Buscar por UID, reseller o notas...">
                         <span class="shortcut-badge">CTRL + K</span>
@@ -274,26 +267,26 @@
                 </div>
             </main>
 
-            <!-- VIEW 2: AI ASSISTANT VIEW (ASISTENTE IA PARA AUTO REGISTRO Y ELIMINACION) -->
+            <!-- VIEW 2: AI ASSISTANT EXCLUSIVE VIEW (PANEL EXCLUSIVO ASISTENTE IA PARA UID IA) -->
             <main id="viewAiAssistant" class="content-view">
                 <div class="view-header">
                     <div>
                         <h1 class="view-title">🤖 Asistente de Registro Inteligente IA</h1>
-                        <p class="view-subtitle">Registra, extiende o elimina UIDs conversando con la IA sin escribir formularios</p>
+                        <p class="view-subtitle">Registra, extiende o elimina UIDs conversando directamente con el Chat IA</p>
                     </div>
                 </div>
 
-                <div class="panel-card" style="max-width: 800px; margin: 0 auto; width:100%;">
+                <div class="panel-card" style="max-width: 850px; margin: 0 auto; width:100%;">
                     <div class="panel-card-header">
                         <div class="header-left-title">
                             <span class="card-icon">⚡</span>
-                            <span class="card-title">Chat Asistente IA (Auto UID Manager)</span>
+                            <span class="card-title">Chat Asistente IA Exclusivo (UID Manager)</span>
                         </div>
                     </div>
                     <div class="panel-card-body" style="padding:20px;">
                         <div id="aiChatConsole" class="ai-chat-box">
                             <div class="ai-msg bot">
-                                🤖 ¡Hola! Soy tu asistente de licencias IA. Puedes enviarme mensajes como:
+                                🤖 ¡Hola! Soy tu asistente de licencias IA. Puedes enviarme mensajes para administrar UIDs fácilmente:
                                 <br>• <code>Registrar 57546546 por 30 dias para Juan VIP</code>
                                 <br>• <code>Extender 57546546 por 15 dias</code>
                                 <br>• <code>Eliminar 57546546</code>

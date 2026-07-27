@@ -1,4 +1,4 @@
-// SpectralX Registrar Bypass UID Global System - Full Integrated Logic
+// SpectralX Registrar Bypass UID Global System - Dedicated Views Logic
 const STORAGE_UIDS  = 'registrar_bypass_uids';
 const STORAGE_USERS = 'registrar_bypass_users';
 const STORAGE_CFG   = 'registrar_bypass_config';
@@ -29,7 +29,6 @@ const loginPassword = document.getElementById('loginPassword');
 const loginErrorMsg = document.getElementById('loginErrorMsg');
 const btnTogglePassShow = document.getElementById('btnTogglePassShow');
 const chkRememberMe = document.getElementById('chkRememberMe');
-const btnQuickAiLogin = document.getElementById('btnQuickAiLogin');
 
 const appLayout = document.getElementById('appLayout');
 const sidebar = document.getElementById('sidebar');
@@ -54,8 +53,15 @@ const notifBadgeCnt = document.getElementById('notifBadgeCnt');
 
 const navItems = document.querySelectorAll('.nav-item');
 const views = document.querySelectorAll('.content-view');
+
+const navDashboardBtn = document.getElementById('navDashboardBtn');
+const navUidsBtn = document.getElementById('navUidsBtn');
+const navAiBtn = document.getElementById('navAiBtn');
 const navResellersBtn = document.getElementById('navResellersBtn');
+const navProfileBtn = document.getElementById('navProfileBtn');
 const navConfigBtn = document.getElementById('navConfigBtn');
+const navLogsBtn = document.getElementById('navLogsBtn');
+const navSupportBtn = document.getElementById('navSupportBtn');
 
 const uidsTableBody = document.getElementById('uidsTableBody');
 const uidsEmptyState = document.getElementById('uidsEmptyState');
@@ -179,7 +185,6 @@ function toggleTheme() {
     }
 }
 
-// 🛡️ ANTI-DEBUGGING PROTECTION
 function initAntiDebuggingProtection() {
     document.addEventListener('keydown', (e) => {
         if (
@@ -273,7 +278,6 @@ function loadUsers() {
         try { users = JSON.parse(saved); } catch(e){ users = []; }
     }
     
-    // VERIFICAR USUARIOS POR DEFECTO: SPECTRALX (SUPER ADMIN) Y UID IA (ASISTENTE IA)
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
     const aiExists = users && users.some(u => u.username.toUpperCase() === 'UID IA');
 
@@ -441,21 +445,43 @@ function showApp() {
     updateAvatarUI();
 
     const isSuperAdmin = role === 'ADMIN' || role === 'SUPER ADMIN';
+    const isAiAccount = name.toUpperCase() === 'UID IA';
     
-    if (!isSuperAdmin) {
+    if (isAiAccount) {
+        // SI ES EL USUARIO DEDICADO "UID IA", OCULTAR TODAS LAS DEMÁS PESTAÑAS Y DEJAR SOLO EL CHAT IA
+        navDashboardBtn.style.display = 'none';
+        navUidsBtn.style.display = 'none';
         navResellersBtn.style.display = 'none';
+        navProfileBtn.style.display = 'none';
         navConfigBtn.style.display = 'none';
-    } else {
-        navResellersBtn.style.display = 'flex';
-        navConfigBtn.style.display = 'flex';
-    }
+        navLogsBtn.style.display = 'none';
+        navSupportBtn.style.display = 'none';
+        navAiBtn.style.display = 'flex';
 
-    // SI EL USUARIO INGRESÓ COMO "UID IA", ABRIR DIRECTAMENTE LA PESTAÑA DEL ASISTENTE IA
-    if (name.toUpperCase() === 'UID IA') {
         navItems.forEach(i => i.classList.remove('active'));
         views.forEach(v => v.classList.remove('active'));
-        document.querySelector('[data-view="aiAssistant"]').classList.add('active');
+        navAiBtn.classList.add('active');
         document.getElementById('viewAiAssistant').classList.add('active');
+    } else {
+        navDashboardBtn.style.display = 'flex';
+        navUidsBtn.style.display = 'flex';
+        navAiBtn.style.display = 'flex';
+        navProfileBtn.style.display = 'flex';
+        navLogsBtn.style.display = 'flex';
+        navSupportBtn.style.display = 'flex';
+
+        if (!isSuperAdmin) {
+            navResellersBtn.style.display = 'none';
+            navConfigBtn.style.display = 'none';
+        } else {
+            navResellersBtn.style.display = 'flex';
+            navConfigBtn.style.display = 'flex';
+        }
+
+        navItems.forEach(i => i.classList.remove('active'));
+        views.forEach(v => v.classList.remove('active'));
+        navUidsBtn.classList.add('active');
+        document.getElementById('viewUids').classList.add('active');
     }
 
     logSystemEvent('AUTENTICACIÓN', `Sesión iniciada por el usuario ${name} (${role}).`, 'info');
@@ -775,15 +801,6 @@ function setupEvents() {
 
     if (btnToggleTheme) btnToggleTheme.addEventListener('click', toggleTheme);
 
-    // INGRESO RÁPIDO ASISTENTE IA (USUARIO: "UID IA", CLAVE: "UID IA")
-    if (btnQuickAiLogin) {
-        btnQuickAiLogin.addEventListener('click', () => {
-            loginUsername.value = 'UID IA';
-            loginPassword.value = 'UID IA';
-            loginForm.dispatchEvent(new Event('submit'));
-        });
-    }
-
     // AI Chat Send Event
     if (btnSendAiMsg && aiChatInput) {
         const sendAi = () => {
@@ -896,7 +913,7 @@ function setupEvents() {
         });
     }
 
-    // LOGIN FORM SUBMIT
+    // LOGIN FORM SUBMIT (REQUIERE INGRESO MANUAL DE USUARIO Y CONTRASEÑA)
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -972,7 +989,6 @@ function setupEvents() {
         });
     });
 
-    // Subir foto de perfil (1 solo uso)
     if (avatarFileInput) {
         avatarFileInput.addEventListener('change', (e) => {
             if (currentUser.avatarLocked) {
@@ -1005,7 +1021,6 @@ function setupEvents() {
         });
     }
 
-    // Modal Add UID
     btnOpenAddModal.addEventListener('click', () => addModal.classList.remove('hidden'));
     btnCloseAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
     btnCancelAddModal.addEventListener('click', () => addModal.classList.add('hidden'));
@@ -1048,7 +1063,6 @@ function setupEvents() {
         addModal.classList.add('hidden');
     });
 
-    // Modal Add Reseller
     btnOpenAddResellerModal.addEventListener('click', () => addResellerModal.classList.remove('hidden'));
     btnCloseResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
     btnCancelResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
