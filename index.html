@@ -20,7 +20,7 @@
     <!-- SPEED LINES ANIMATED CANVAS BACKGROUND -->
     <canvas id="bgCanvas" class="bg-canvas"></canvas>
 
-    <!-- LOGIN SCREEN -->
+    <!-- LOGIN SCREEN WITH AI ASSISTANT DIRECT ACCESS -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="login-logo-box" id="loginLogoPreview">
@@ -68,7 +68,14 @@
                     <span>🔒 Iniciar Sesión</span>
                 </button>
 
-                <p class="login-footer-note">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
+                <!-- BOTON / ACCESO DIRECTO ASISTENTE IA EN EL LOGIN -->
+                <div class="ai-login-shortcut-box" style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(0,200,255,0.15);">
+                    <button type="button" id="btnQuickAiLogin" class="btn-secondary" style="width:100%; font-weight:700; color:var(--accent-cyan); border-color:rgba(0,200,255,0.3); background:rgba(0,112,243,0.12);">
+                        🤖 Ingresar con Asistente IA (UID IA)
+                    </button>
+                </div>
+
+                <p class="login-footer-note" style="margin-top:12px;">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
             </form>
         </div>
     </div>

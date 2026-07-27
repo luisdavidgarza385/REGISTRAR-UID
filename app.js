@@ -29,6 +29,7 @@ const loginPassword = document.getElementById('loginPassword');
 const loginErrorMsg = document.getElementById('loginErrorMsg');
 const btnTogglePassShow = document.getElementById('btnTogglePassShow');
 const chkRememberMe = document.getElementById('chkRememberMe');
+const btnQuickAiLogin = document.getElementById('btnQuickAiLogin');
 
 const appLayout = document.getElementById('appLayout');
 const sidebar = document.getElementById('sidebar');
@@ -155,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
     startLiveTimerTicker();
 });
 
-// TEMA MODO OSCURO / MODO CLARO
 function loadTheme() {
     const savedTheme = localStorage.getItem(STORAGE_THEME);
     if (savedTheme === 'light') {
@@ -213,7 +213,6 @@ function initAntiDebuggingProtection() {
     })();
 }
 
-// SPEED LINES CANVAS
 function initSpeedLinesCanvas() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
@@ -273,10 +272,15 @@ function loadUsers() {
     if (saved) {
         try { users = JSON.parse(saved); } catch(e){ users = []; }
     }
+    
+    // VERIFICAR USUARIOS POR DEFECTO: SPECTRALX (SUPER ADMIN) Y UID IA (ASISTENTE IA)
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
-    if (!users || users.length === 0 || !spectralExists) {
+    const aiExists = users && users.some(u => u.username.toUpperCase() === 'UID IA');
+
+    if (!users || users.length === 0 || !spectralExists || !aiExists) {
         users = [
             { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', avatar: null, avatarLocked: false, days: 365, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() },
+            { username: 'UID IA', password: 'UID IA', role: 'RESELLER', avatar: null, avatarLocked: false, days: 3650, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 3650 * 24 * 60 * 60 * 1000).toISOString() },
             { username: 'reseller1', password: '123', role: 'RESELLER', avatar: null, avatarLocked: false, days: 30, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() }
         ];
         saveUsers();
@@ -368,7 +372,6 @@ function renderLogsUI() {
     if (!systemLogsBox || !currentUser) return;
     systemLogsBox.innerHTML = '';
     
-    // FILTRAR LOGS: Si es Reseller, SOLO ve sus propios accesos y acciones
     const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
     const filteredLogs = systemLogs.filter(l => {
         if (isSuperAdmin) return true;
@@ -417,9 +420,8 @@ function sanitizeHtml(str) {
 }
 
 function showApp() {
-    // Verificar si la cuenta del usuario expiró
     if (currentUser.expiresAt && new Date(currentUser.expiresAt) < new Date() && currentUser.role !== 'SUPER ADMIN') {
-        alert('⚠️ Tu cuenta de revendedor ha expirado. Contacta al Administrador en WhatsApp para renovarla (+50232509982).');
+        alert('⚠️ Tu cuenta ha expirado. Contacta al Administrador en WhatsApp para renovarla (+50232509982).');
         logout();
         return;
     }
@@ -446,6 +448,14 @@ function showApp() {
     } else {
         navResellersBtn.style.display = 'flex';
         navConfigBtn.style.display = 'flex';
+    }
+
+    // SI EL USUARIO INGRESÓ COMO "UID IA", ABRIR DIRECTAMENTE LA PESTAÑA DEL ASISTENTE IA
+    if (name.toUpperCase() === 'UID IA') {
+        navItems.forEach(i => i.classList.remove('active'));
+        views.forEach(v => v.classList.remove('active'));
+        document.querySelector('[data-view="aiAssistant"]').classList.add('active');
+        document.getElementById('viewAiAssistant').classList.add('active');
     }
 
     logSystemEvent('AUTENTICACIÓN', `Sesión iniciada por el usuario ${name} (${role}).`, 'info');
@@ -562,9 +572,8 @@ function render() {
 
     const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
 
-    // PRIVACIDAD DE UIDS: Revendedores solo ven SUS propios UIDs creados
     const visibleUids = uids.filter(item => {
-        if (isSuperAdmin) return true; // Super Admin ve todos los UIDs
+        if (isSuperAdmin) return true;
         return item.addedBy === currentUser.username;
     });
 
@@ -588,7 +597,6 @@ function render() {
     dashResellerCount.textContent = users.length;
     resellerCountLabel.textContent = users.length;
 
-    // BUSCADOR EN TIEMPO REAL CON LA LUPITA 🔍
     uidsTableBody.innerHTML = '';
     const q = globalSearch.value.toLowerCase().trim();
 
@@ -657,7 +665,6 @@ function renderResellersTable() {
     });
 }
 
-// MODAL EXTENDER DÍAS DE UID
 window.openExtendModal = (uid) => {
     const item = uids.find(i => i.uid === uid);
     if (item) {
@@ -697,11 +704,9 @@ async function sendApiCall(action, payload) {
     } catch(e){}
 }
 
-// 🤖 ASISTENTE DE IA DE PROCESAMIENTO AUTOMÁTICO DE MENSAJES
 function processAiChatMessage(msg) {
     const text = msg.trim().toLowerCase();
     
-    // Extraer digitos para el UID
     const uidMatch = text.match(/\b\d{5,15}\b/);
     const daysMatch = text.match(/(\d+)\s*(dias|día|días|dia|d)/);
 
@@ -770,6 +775,15 @@ function setupEvents() {
 
     if (btnToggleTheme) btnToggleTheme.addEventListener('click', toggleTheme);
 
+    // INGRESO RÁPIDO ASISTENTE IA (USUARIO: "UID IA", CLAVE: "UID IA")
+    if (btnQuickAiLogin) {
+        btnQuickAiLogin.addEventListener('click', () => {
+            loginUsername.value = 'UID IA';
+            loginPassword.value = 'UID IA';
+            loginForm.dispatchEvent(new Event('submit'));
+        });
+    }
+
     // AI Chat Send Event
     if (btnSendAiMsg && aiChatInput) {
         const sendAi = () => {
@@ -797,7 +811,6 @@ function setupEvents() {
         });
     }
 
-    // Modal Extend Days Submit
     if (modalExtendForm) {
         modalExtendForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -823,7 +836,6 @@ function setupEvents() {
     if (btnCloseExtendModal && extendModal) btnCloseExtendModal.addEventListener('click', () => extendModal.classList.add('hidden'));
     if (btnCancelExtendModal && extendModal) btnCancelExtendModal.addEventListener('click', () => extendModal.classList.add('hidden'));
 
-    // Notifications Modal
     if (btnNotifications) {
         btnNotifications.addEventListener('click', () => {
             const isSuperAdmin = currentUser.role === 'SUPER ADMIN' || currentUser.role === 'ADMIN';
@@ -884,7 +896,7 @@ function setupEvents() {
         });
     }
 
-    // Login Form Submit
+    // LOGIN FORM SUBMIT
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -899,7 +911,9 @@ function setupEvents() {
         const pass = loginPassword.value.trim();
 
         const found = users.find(u => 
-            (u.username.toLowerCase() === user.toLowerCase() || (user.toLowerCase() === 'spectralx' && u.username.toLowerCase() === 'spectralx@gmail.com')) 
+            (u.username.toLowerCase() === user.toLowerCase() || 
+             (user.toLowerCase() === 'spectralx' && u.username.toLowerCase() === 'spectralx@gmail.com') ||
+             (user.toUpperCase() === 'UID IA' && u.username.toUpperCase() === 'UID IA')) 
             && u.password === pass
         );
 
@@ -1034,7 +1048,7 @@ function setupEvents() {
         addModal.classList.add('hidden');
     });
 
-    // Modal Add Reseller (Con Días de expiración de cuenta)
+    // Modal Add Reseller
     btnOpenAddResellerModal.addEventListener('click', () => addResellerModal.classList.remove('hidden'));
     btnCloseResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
     btnCancelResellerModal.addEventListener('click', () => addResellerModal.classList.add('hidden'));
@@ -1076,7 +1090,6 @@ function setupEvents() {
         alert(`Reseller "${resUser}" creado con éxito por ${resDays} días.`);
     });
 
-    // BUSCADOR EN TIEMPO REAL CON LA LUPITA Y AUTO SCROLL 🔍
     globalSearch.addEventListener('input', () => {
         render();
         const q = globalSearch.value.trim();
@@ -1090,7 +1103,6 @@ function setupEvents() {
         }
     });
 
-    // Save Config
     btnSaveConfig.addEventListener('click', () => {
         apiConfig.url = configApiUrl.value.trim();
         apiConfig.key = configApiKey.value.trim();
@@ -1099,7 +1111,6 @@ function setupEvents() {
         alert('Configuración guardada correctamente.');
     });
 
-    // Test API Connection
     btnTestApiConnection.addEventListener('click', async () => {
         apiTestStatus.textContent = 'Probando conexión...';
         apiTestStatus.style.color = '#00c8ff';
