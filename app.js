@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedSess) {
         try {
             const parsed = JSON.parse(savedSess);
-            const found = users.find(u => u.username === parsed.username && u.password === parsed.password);
+            const found = users.find(u => u.username.toLowerCase() === parsed.username.toLowerCase() && u.password === parsed.password);
             if (found) {
                 currentUser = found;
                 showApp();
@@ -147,9 +147,11 @@ function loadUsers() {
     if (saved) {
         try { users = JSON.parse(saved); } catch(e){ users = []; }
     }
-    if (!users || users.length === 0) {
+    // Asegurar que el usuario Super Admin SpectralX siempre exista por defecto
+    const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
+    if (!users || users.length === 0 || !spectralExists) {
         users = [
-            { username: 'admin', password: 'admin123', role: 'ADMIN', createdAt: new Date().toISOString() },
+            { username: 'spectralx@gmail.com', password: 'SpectralX', role: 'SUPER ADMIN', createdAt: new Date().toISOString() },
             { username: 'reseller1', password: '123', role: 'RESELLER', createdAt: new Date().toISOString() }
         ];
         saveUsers();
@@ -179,7 +181,7 @@ function loadUids() {
                 uid: '57546546',
                 days: 30,
                 note: 'Cliente Ejemplo VIP',
-                addedBy: 'admin',
+                addedBy: 'spectralx@gmail.com',
                 createdAt: new Date().toISOString(),
                 expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
             }
@@ -199,15 +201,15 @@ function showApp() {
     const name = currentUser.username;
     const role = currentUser.role;
 
-    userDisplayName.textContent = name;
-    userRoleBadge.textContent = role === 'ADMIN' ? 'ADMINISTRADOR' : 'RESELLER';
+    userDisplayName.textContent = name === 'spectralx@gmail.com' ? 'SpectralX' : name;
+    userRoleBadge.textContent = role === 'SUPER ADMIN' || role === 'ADMIN' ? 'SUPER ADMIN' : 'RESELLER';
     userAvatarChar.textContent = name.charAt(0).toUpperCase();
 
     footerUserLabel.textContent = name;
-    footerRoleLabel.textContent = role === 'ADMIN' ? 'ADMINISTRADOR' : 'RESELLER';
+    footerRoleLabel.textContent = role === 'SUPER ADMIN' || role === 'ADMIN' ? 'SUPER ADMIN' : 'RESELLER';
 
-    // Restringir pestaña de Resellers solo para ADMIN
-    if (role !== 'ADMIN') {
+    // Restringir pestaña de Resellers solo para ADMIN/SUPER ADMIN
+    if (role !== 'ADMIN' && role !== 'SUPER ADMIN') {
         navResellersBtn.style.display = 'none';
     } else {
         navResellersBtn.style.display = 'flex';
@@ -273,7 +275,6 @@ function render() {
                              (item.note && item.note.toLowerCase().includes(q)) ||
                              (item.addedBy && item.addedBy.toLowerCase().includes(q));
         if (!matchesQuery) return false;
-        // Si el usuario es reseller, muestra todos o los suyos
         return true;
     });
 
@@ -285,7 +286,7 @@ function render() {
             const d = getDaysLeft(item.expiresAt);
             const created = new Date(item.createdAt).toLocaleDateString();
             const expires = new Date(item.expiresAt).toLocaleDateString();
-            const addedBy = item.addedBy || 'admin';
+            const addedBy = item.addedBy || 'SpectralX';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -304,7 +305,6 @@ function render() {
         });
     }
 
-    // Render Resellers Table (Admin View)
     renderResellersTable();
 }
 
@@ -318,11 +318,11 @@ function renderResellersTable() {
         tr.innerHTML = `
             <td><strong style="color:#fff;">👤 ${u.username}</strong></td>
             <td><code style="color:#c084fc;">${u.password}</code></td>
-            <td><span class="badge ${u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
+            <td><span class="badge ${u.role === 'SUPER ADMIN' || u.role === 'ADMIN' ? 'purple' : 'green'}">${u.role}</span></td>
             <td>${createdDate}</td>
             <td><strong>${uidsCreatedCount} UIDs</strong></td>
             <td class="text-right">
-                ${u.username !== 'admin' ? `<button class="btn-delete-row" onclick="deleteReseller('${u.username}')">🗑️ Eliminar</button>` : '<span style="color:var(--text-muted)">Principal</span>'}
+                ${u.username.toLowerCase() !== 'spectralx@gmail.com' ? `<button class="btn-delete-row" onclick="deleteReseller('${u.username}')">🗑️ Eliminar</button>` : '<span style="color:var(--text-muted)">Super Admin</span>'}
             </td>
         `;
         resellersTableBody.appendChild(tr);
@@ -339,7 +339,7 @@ window.removeUid = (uid) => {
 };
 
 window.deleteReseller = (username) => {
-    if (confirm(`¿Estás seguro de borrar al reseller "${username}"?`)) {
+    if (confirm(`¿Estás seguro de borrar al revendedor "${username}"?`)) {
         users = users.filter(u => u.username !== username);
         saveUsers();
         render();
@@ -364,7 +364,12 @@ function setupEvents() {
         const user = loginUsername.value.trim();
         const pass = loginPassword.value.trim();
 
-        const found = users.find(u => u.username.toLowerCase() === user.toLowerCase() && u.password === pass);
+        // Permitir inicio de sesion con 'spectralx@gmail.com' o 'spectralx'
+        const found = users.find(u => 
+            (u.username.toLowerCase() === user.toLowerCase() || (user.toLowerCase() === 'spectralx' && u.username.toLowerCase() === 'spectralx@gmail.com')) 
+            && u.password === pass
+        );
+
         if (found) {
             currentUser = found;
             localStorage.setItem(STORAGE_SESS, JSON.stringify(found));
@@ -456,7 +461,7 @@ function setupEvents() {
         if (!resUser || !resPass) return;
 
         if (users.some(u => u.username.toLowerCase() === resUser.toLowerCase())) {
-            alert('El nombre de usuario ya existe. Elige otro.');
+            alert('El nombre de usuario o correo ya existe. Elige otro.');
             return;
         }
 
