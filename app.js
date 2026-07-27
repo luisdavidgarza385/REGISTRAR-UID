@@ -1,4 +1,4 @@
-// Registrar Bypass UID Global - Logic & Canvas Waves
+// SpectralX Registrar Bypass UID Global - Logic & Canvas Waves
 const STORAGE_UIDS  = 'registrar_bypass_uids';
 const STORAGE_USERS = 'registrar_bypass_users';
 const STORAGE_CFG   = 'registrar_bypass_config';
@@ -21,6 +21,11 @@ const loginPassword = document.getElementById('loginPassword');
 const loginErrorMsg = document.getElementById('loginErrorMsg');
 
 const appLayout = document.getElementById('appLayout');
+const sidebar = document.getElementById('sidebar');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const btnOpenMobileMenu = document.getElementById('btnOpenMobileMenu');
+const btnCloseMobileSidebar = document.getElementById('btnCloseMobileSidebar');
+
 const userDisplayName = document.getElementById('userDisplayName');
 const userRoleBadge = document.getElementById('userRoleBadge');
 const userAvatarChar = document.getElementById('userAvatarChar');
@@ -147,7 +152,6 @@ function loadUsers() {
     if (saved) {
         try { users = JSON.parse(saved); } catch(e){ users = []; }
     }
-    // Asegurar que el usuario Super Admin SpectralX siempre exista por defecto
     const spectralExists = users && users.some(u => u.username.toLowerCase() === 'spectralx@gmail.com' || u.username.toLowerCase() === 'spectralx');
     if (!users || users.length === 0 || !spectralExists) {
         users = [
@@ -208,7 +212,6 @@ function showApp() {
     footerUserLabel.textContent = name;
     footerRoleLabel.textContent = role === 'SUPER ADMIN' || role === 'ADMIN' ? 'SUPER ADMIN' : 'RESELLER';
 
-    // Restringir pestaña de Resellers solo para ADMIN/SUPER ADMIN
     if (role !== 'ADMIN' && role !== 'SUPER ADMIN') {
         navResellersBtn.style.display = 'none';
     } else {
@@ -224,6 +227,17 @@ function logout() {
     appLayout.classList.add('hidden');
     loginScreen.classList.remove('hidden');
     loginErrorMsg.classList.add('hidden');
+    closeMobileMenu();
+}
+
+function closeMobileMenu() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (mobileOverlay) mobileOverlay.classList.add('hidden');
+}
+
+function openMobileMenu() {
+    if (sidebar) sidebar.classList.add('open');
+    if (mobileOverlay) mobileOverlay.classList.remove('hidden');
 }
 
 function getDaysLeft(expiresAt) {
@@ -358,13 +372,17 @@ async function sendApiCall(action, payload) {
 }
 
 function setupEvents() {
+    // Mobile Drawer Controls
+    if (btnOpenMobileMenu) btnOpenMobileMenu.addEventListener('click', openMobileMenu);
+    if (btnCloseMobileSidebar) btnCloseMobileSidebar.addEventListener('click', closeMobileMenu);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileMenu);
+
     // Login
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const user = loginUsername.value.trim();
         const pass = loginPassword.value.trim();
 
-        // Permitir inicio de sesion con 'spectralx@gmail.com' o 'spectralx'
         const found = users.find(u => 
             (u.username.toLowerCase() === user.toLowerCase() || (user.toLowerCase() === 'spectralx' && u.username.toLowerCase() === 'spectralx@gmail.com')) 
             && u.password === pass
@@ -395,6 +413,7 @@ function setupEvents() {
             if (targetView === 'uids') document.getElementById('viewUids').classList.add('active');
             if (targetView === 'resellers') document.getElementById('viewResellers').classList.add('active');
             if (targetView === 'config') document.getElementById('viewConfig').classList.add('active');
+            closeMobileMenu();
         });
     });
 

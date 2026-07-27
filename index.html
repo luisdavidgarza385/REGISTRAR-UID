@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SpectralX - Registrar Bypass UID Global</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,10 +28,10 @@
 
             <form id="loginForm" class="login-form">
                 <div class="input-group">
-                    <label>USUARIO / CORREO ADMINISTRADOR</label>
+                    <label>USUARIO / CORREO DE ACCESO</label>
                     <div class="input-field-wrapper">
-                        <span class="field-icon">📧</span>
-                        <input type="text" id="loginUsername" placeholder="spectralx@gmail.com" value="spectralx@gmail.com" required autocomplete="username">
+                        <span class="field-icon">👤</span>
+                        <input type="text" id="loginUsername" placeholder="Ingresa tu usuario o correo" required autocomplete="username">
                     </div>
                 </div>
 
@@ -39,14 +39,14 @@
                     <label>CONTRASEÑA</label>
                     <div class="input-field-wrapper">
                         <span class="field-icon">🔒</span>
-                        <input type="password" id="loginPassword" placeholder="••••••••" value="SpectralX" required autocomplete="current-password">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
                     </div>
                 </div>
 
                 <div id="loginErrorMsg" class="login-error hidden"></div>
 
                 <button type="submit" class="btn-purple-glow">
-                    <span>➡️ Iniciar Sesión (SpectralX)</span>
+                    <span>➡️ Iniciar Sesión</span>
                 </button>
             </form>
         </div>
@@ -54,8 +54,11 @@
 
     <!-- MAIN APP SCREEN -->
     <div id="appLayout" class="app-layout hidden">
+        <!-- MOBILE OVERLAY BACKDROP -->
+        <div id="mobileOverlay" class="mobile-overlay hidden"></div>
+
         <!-- SIDEBAR -->
-        <aside class="sidebar">
+        <aside id="sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -66,6 +69,7 @@
                     <span class="brand-title">SpectralX <span class="brand-highlight">Panel</span></span>
                     <span class="brand-badge">UID GLOBAL ADMIN</span>
                 </div>
+                <button id="btnCloseMobileSidebar" class="btn-close-mobile">&times;</button>
             </div>
 
             <nav class="sidebar-menu">
@@ -106,9 +110,12 @@
         <div class="main-wrapper">
             <!-- TOP BAR -->
             <header class="topbar">
-                <div class="topbar-search">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="globalSearch" placeholder="Buscar UIDs, resellers, notas...">
+                <div class="topbar-left">
+                    <button id="btnOpenMobileMenu" class="btn-mobile-toggle" aria-label="Abrir Menú">☰</button>
+                    <div class="topbar-search">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="globalSearch" placeholder="Buscar UIDs, resellers...">
+                    </div>
                 </div>
 
                 <div class="topbar-profile">
@@ -126,7 +133,7 @@
             <main id="viewUids" class="content-view active">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs Global (SpectralX)</h1>
+                        <h1 class="view-title"><span class="title-icon">🔑</span> Gestión de UIDs Global</h1>
                         <p class="view-subtitle">Administra las licencias y UIDs registradas en el sistema</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddModal">
@@ -211,7 +218,7 @@
                 <div class="panel-card" style="margin-top:20px;">
                     <div class="panel-card-header"><span class="card-icon">⚡</span> Estado del Servidor</div>
                     <div class="panel-card-body" style="padding: 24px;">
-                        <p style="color: var(--text-secondary); font-size:14px;">El panel SpectralX - Registrar Bypass UID Global se encuentra funcionando correctamente y sincronizado en la nube.</p>
+                        <p style="color: var(--text-secondary); font-size:14px;">El panel SpectralX - Registrar Bypass UID Global se encuentra funcionando correctamente y adaptado para dispositivos móviles.</p>
                     </div>
                 </div>
             </main>
@@ -220,7 +227,7 @@
             <main id="viewResellers" class="content-view">
                 <div class="view-header">
                     <div>
-                        <h1 class="view-title">👥 Gestión de Resellers (SpectralX Control)</h1>
+                        <h1 class="view-title">👥 Gestión de Resellers</h1>
                         <p class="view-subtitle">Crea y administra accesos de usuarios y contraseñas para tus revendedores</p>
                     </div>
                     <button class="btn-action-primary" id="btnOpenAddResellerModal">
