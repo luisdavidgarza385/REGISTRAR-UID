@@ -20,56 +20,79 @@
     <!-- SPEED LINES ANIMATED CANVAS BACKGROUND -->
     <canvas id="bgCanvas" class="bg-canvas"></canvas>
 
+    <!-- AMBIENT GLOW BLOBS -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
-        <div class="login-card">
-            <div class="login-logo-box" id="loginLogoPreview">
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L3 7V12C3 17.5 7 21 12 22C17 21 21 17.5 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#00c8ff" stroke-width="2"/>
-                    <path d="M12 6L7 11H10V16H14V11H17L12 6Z" fill="#ffffff"/>
-                    <defs>
-                        <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#0070f3"/>
-                            <stop offset="1" stop-color="#7000ff"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+        <div class="login-card-wrapper">
+            <div class="login-card">
+                <div class="login-badge-header">
+                    <span class="pulse-dot"></span>
+                    <span>BYPASS REGISTER • GLOBAL SYSTEM</span>
+                </div>
+                
+                <div class="login-logo-box" id="loginLogoPreview">
+                    <div class="shield-aura"></div>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L3 7V12C3 17.5 7 21 12 22C17 21 21 17.5 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#00c8ff" stroke-width="1.8"/>
+                        <path d="M12 6L7 11H10V16H14V11H17L12 6Z" fill="#ffffff"/>
+                        <defs>
+                            <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#0070f3"/>
+                                <stop offset="0.5" stop-color="#00c8ff"/>
+                                <stop offset="1" stop-color="#7000ff"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <h1 class="login-title">Registrar<span class="gradient-text">Bypass</span></h1>
+                <p class="login-subtitle">UID Global Management System v2.0</p>
+
+                <form id="loginForm" class="login-form">
+                    <div class="input-group">
+                        <label>USUARIO / EMAIL DE ACCESO</label>
+                        <div class="input-field-wrapper">
+                            <span class="field-icon">👤</span>
+                            <input type="text" id="loginUsername" placeholder="Ej: spectralx@gmail.com" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>CONTRASEÑA</label>
+                        <div class="input-field-wrapper">
+                            <span class="field-icon">🔑</span>
+                            <input type="password" id="loginPassword" placeholder="Ingresa tu clave de acceso" required autocomplete="off">
+                            <span id="btnTogglePassShow" class="field-icon-right" title="Mostrar/Ocultar contraseña">👁️</span>
+                        </div>
+                    </div>
+
+                    <div class="login-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chkRememberMe" checked>
+                            <span class="checkmark"></span>
+                            <span class="chk-label">Recordar mi sesión</span>
+                        </label>
+                        <span class="secure-tag">🔒 256-bit Encrypted</span>
+                    </div>
+
+                    <div id="loginErrorMsg" class="login-error hidden"></div>
+
+                    <button type="submit" class="btn-blue-glow">
+                        <span class="btn-text">🚀 Iniciar Sesión en el Panel</span>
+                    </button>
+
+                    <div class="login-divider">
+                        <span>¿NECESITAS UNA CUENTA O ACCESO?</span>
+                    </div>
+
+                    <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-support">
+                        <span>💬 Contactar Administrador en WhatsApp</span>
+                    </a>
+                </form>
             </div>
-            <h1 class="login-title">Registrar Bypass</h1>
-            <p class="login-subtitle">UID Global System</p>
-
-            <form id="loginForm" class="login-form">
-                <div class="input-group">
-                    <div class="input-field-wrapper">
-                        <span class="field-icon">👤</span>
-                        <input type="text" id="loginUsername" placeholder="Usuario o correo electrónico" required autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <div class="input-field-wrapper">
-                        <span class="field-icon">🔒</span>
-                        <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="off">
-                        <span id="btnTogglePassShow" class="field-icon-right" title="Mostrar/Ocultar contraseña">👁️</span>
-                    </div>
-                </div>
-
-                <div class="login-options">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="chkRememberMe" checked>
-                        <span class="checkmark"></span>
-                        <span class="chk-label">Recordarme</span>
-                    </label>
-                </div>
-
-                <div id="loginErrorMsg" class="login-error hidden"></div>
-
-                <button type="submit" class="btn-blue-glow">
-                    <span>🔒 Iniciar Sesión</span>
-                </button>
-
-                <p class="login-footer-note" style="margin-top:16px;">¿No tienes una cuenta? <a href="https://wa.me/+50232509982" target="_blank" rel="noopener noreferrer" class="accent-link">Contacta al administrador en WhatsApp</a></p>
-            </form>
         </div>
     </div>
 
