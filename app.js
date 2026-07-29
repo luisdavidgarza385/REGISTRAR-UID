@@ -722,17 +722,13 @@ window.deleteReseller = (username) => {
 async function sendApiCall(action, payload) {
     if (!apiConfig.url) return;
     try {
-        const formData = new URLSearchParams();
-        for (const key in payload) {
-            formData.append(key, payload[key]);
-        }
         await fetch(`${apiConfig.url}?action=${action}`, {
             method: 'POST',
             headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
                 'X-API-KEY': apiConfig.key 
             },
-            body: formData.toString()
+            body: JSON.stringify(payload)
         });
     } catch(e) {
         console.error("API Call error:", e);
