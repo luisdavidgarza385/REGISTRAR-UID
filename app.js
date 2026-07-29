@@ -14,8 +14,8 @@ let systemLogs = [];
 let broadcasts = [];
 let currentUser = null;
 let apiConfig = {
-    url: 'https://apix.vypermods.com/bypass/vp',
-    key: 'VPAPI-88HD63H6RSW78HQSHPHXM3P432HULZ'
+    url: 'https://gtccheats.xyz/Api/uidbypassapi/api_user.php',
+    key: 'GTCAPI-0C466C95E5A6F9CD978E5245A74B4973'
 };
 let countdownInterval = null;
 let loginFailedAttempts = 0;
